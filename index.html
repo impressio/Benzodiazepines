@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="figma">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benzodiazepines &amp; the GABA-A receptor</title>
+  <link rel="icon" href="assets/icons/favicon.ico" sizes="16x16 32x32 48x48 64x64" />
+  <link rel="icon" href="assets/icons/apple-touch-icon.png" type="image/png" sizes="180x180" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <meta name="description" content="Interactive web app illustrating benzodiazepine pharmacodynamics (allosteric modulation of GABA-A receptor subunits) and pharmacokinetics." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/theme-figma.css" />
+
+  <!-- JavaScript libraries from CDN -->
+  <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/" }, "integrity": { "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js": "sha384-qOubuRxWZ0I7rXTjcuhcKNHKvPM7q0ztN8/82sJnxnyKS0OXTeB5FsIcysc2T9EY", "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/controls/OrbitControls.js": "sha384-aJoe4qqS/DgF2jh9njAuvA6QIveJYoCuYOfYjdFY8P3eawzmc9bEQ40jq2TvOyuP" } }</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous" />
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous" defer></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8" integrity="sha384-cCVCZkAjYNxaYKbM8lsArLznDF/SvMFr1jcZrvOpSTCa0W40ZAdLzHCEulnUa5i7" crossorigin="anonymous" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/3dmol@2.4.2/build/3Dmol-min.js" integrity="sha384-zxWwO8usW1MzUHquSL3foT+Cw2ndelPQ5bNzHVYdKGiJ0vqvqQ8Y9XeKLmotffmQ" crossorigin="anonymous" defer></script>
+</head>
+<body>
+
+<!-- ───────────── NAV ───────────── -->
+<header class="topbar">
+  <a class="brand" href="#" id="brand-home" aria-label="BZD·GABA-A, back to top" data-i18n-aria-label="header.homeLabel">
+    <svg viewBox="0 0 40 40" class="brand-logo" aria-hidden="true">
+      <g transform="translate(20 20)">
+        <circle r="7" cx="0" cy="-11" fill="#F4A340"/>
+        <circle r="7" cx="10.5" cy="-3.4" fill="#3CCB8F"/>
+        <circle r="7" cx="6.5" cy="8.9" fill="#5B8DEF"/>
+        <circle r="7" cx="-6.5" cy="8.9" fill="#3CCB8F"/>
+        <circle r="7" cx="-10.5" cy="-3.4" fill="#5B8DEF"/>
+        <circle r="3" fill="#22B8CF"/>
+      </g>
+    </svg>
+    <span>BZD<span class="brand-light">·GABA<sub>A</sub></span></span>
+  </a>
+  <button type="button" class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu" data-i18n-aria-label="header.openMenu">
+    <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+    <span class="menu-label" aria-live="polite"></span>
+  </button>
+  <nav id="site-nav">
+    <a href="#mechanism" data-i18n="nav.mechanism">Mechanism</a>
+    <a href="#subunits" data-i18n="nav.subunits">Subunits</a>
+    <a href="#substrates" data-i18n="nav.substances">Substances</a>
+    <a href="#routes" data-i18n="nav.routes">Routes</a>
+    <a href="#pd" data-i18n="nav.pharmacodynamics">Pharmacodynamics</a>
+    <a href="#pk" data-i18n="nav.pharmacokinetics">Pharmacokinetics</a>
+    <a href="#dose" data-i18n="nav.doseResponse">Dose-response</a>
+  </nav>
+  <div class="settings">
+    <button type="button" class="settings-toggle" id="settings-toggle" aria-expanded="false" aria-controls="settings-panel" title="Language, values and units" data-i18n-title="settings.button">EN · US</button>
+    <div class="settings-panel" id="settings-panel" hidden>
+      <div class="settings-group">
+        <span class="settings-label" data-i18n="settings.language">Language</span>
+        <div class="seg" role="group" aria-label="Language" data-i18n-aria-label="settings.language">
+          <button type="button" data-setting="lang" data-value="en" lang="en">English</button>
+          <button type="button" data-setting="lang" data-value="sv" lang="sv">Svenska</button>
+        </div>
+      </div>
+      <div class="settings-group">
+        <span class="settings-label" data-i18n="settings.region">Values and units</span>
+        <div class="seg" role="group" aria-label="Values and units" data-i18n-aria-label="settings.region">
+          <button type="button" data-setting="region" data-value="us" title="US: FDA prescribing information, US brand names, ng/mL" data-i18n-title="settings.us">US</button>
+          <button type="button" data-setting="region" data-value="eu" title="EU: EU product information as published in FASS (Sweden), Swedish product names, µg/L" data-i18n-title="settings.eu">EU</button>
+          <button type="button" data-setting="region" data-value="se" title="SE: EU product information as published in FASS (Sweden), Swedish product names, nmol/L" data-i18n-title="settings.se">SE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ───────────── HERO ───────────── -->
+<section class="hero">
+  <div class="hero-text">
+    <p class="eyebrow" data-i18n="hero.eyebrow">Molecular &amp; clinical pharmacology</p>
+    <h1 data-i18n="hero.title">Benzodiazepines &amp; the GABA<sub>A</sub> receptor</h1>
+    <p class="lead" data-i18n="hero.lead">
+      Benzodiazepines (BZDs) are <strong>positive allosteric modulators (PAMs)</strong> of the GABA<sub>A</sub> receptor. They bind at the extracellular
+      <span class="chip chip-a">α</span>+/<span class="chip chip-g">γ2</span>− interface, distinct from the two orthosteric
+      <span class="chip chip-gaba">GABA</span> sites at the <span class="chip chip-b">β</span>+/<span class="chip chip-a">α</span>− interfaces, and increase the apparent affinity of GABA,
+      thereby increasing the <em>frequency</em> of Cl<sup>−</sup> channel opening without gating the channel in the absence of agonist.
+      This resource integrates receptor structure, subunit pharmacology, drug properties and pharmacokinetic-pharmacodynamic models.
+    </p>
+
+  </div>
+</section>
+
+<main>
+
+<!-- ───────────── 1. MECHANISM ───────────── -->
+<section id="mechanism" class="section">
+  <div class="section-head">
+    <span class="step">1</span>
+    <div>
+      <h2 data-i18n="mechanism.title">Allosteric modulation at the receptor</h2>
+      <!-- one paragraph: section introduction, free-concentration equation (filled in by receptor.js) and ligand abbreviations -->
+      <p><span data-i18n="mechanism.intro">Cryo-EM structure of the human α1β3γ2 GABA<sub>A</sub> receptor in complex with GABA and diazepam (PDB <a href="https://www.rcsb.org/structure/6HUP" target="_blank" rel="noopener">6HUP</a>; Masiulis et al., <i>Nature</i> 2019), shown as a simulated density map in a lipid nanodisc. Choose the GABA concentration, a BZD-site ligand and its dose (or set the free concentration directly), the α isoform and, optionally, flumazenil; the readouts give the BZD-site occupancy, the apparent GABA EC<sub>50</sub> and the open probability. The animated channel opens in bursts and desensitises according to a kinetic scheme of the receptor, and Cl<sup>−</sup> ions cross the 9′ gate while it is open. Below the viewer, the neuron type and membrane potential set the direction and size of the Cl<sup>−</sup> flux and the GABA reversal potential, and a plot shows how the receptors open and desensitise during a GABA application and recover after washout.</span> <span id="m-dose-note"></span> <span data-i18n="mechanism.durationAbbr">In the ligand list, LA, IA, SA and USA denote long-, intermediate-, short- and ultra-short-acting.</span></p>
+    </div>
+  </div>
+
+  <div class="card mech-card" id="illo-card">
+    <!-- Controls -->
+    <aside class="controls mech-controls">
+      <label><span data-i18n="mechanism.gabaLabel">GABA (orthosteric agonist)</span>
+        <select id="m-gaba">
+          <option value="0" data-i18n="mechanism.gabaNone">None</option>
+          <option value="1" data-i18n="mechanism.gabaLow">Low · tonic (1 µM)</option>
+          <option value="10" selected data-i18n="mechanism.gabaModerate">Moderate (10 µM)</option>
+          <option value="300" data-i18n="mechanism.gabaHigh">High · synaptic (300 µM)</option>
+        </select>
+      </label>
+      <label><span data-i18n="mechanism.ligandLabel">BZD-site ligand</span>
+        <select id="m-ligand"></select>
+      </label>
+      <div class="dose-row">
+        <label><span data-i18n="mechanism.doseLabel">Dose (mg)</span><input type="number" id="m-dose" min="0" step="0.25" value="10" /></label>
+        <label><span data-i18n="mechanism.dosesLabel">Doses</span><input type="number" id="m-n" min="1" max="60" step="1" value="1" /></label>
+        <label>τ (h)<input type="number" id="m-tau" min="1" max="72" step="1" value="24" title="Dosing interval"  data-i18n-title="mechanism.intervalTip"/></label>
+      </div>
+      <label><span data-i18n="mechanism.concLabel">Free ligand concentration</span> <b id="m-conc-val">100 nM</b>
+        <input type="range" id="m-conc" min="-1" max="4" step="0.01" value="2" />
+      </label>
+      <label><span data-i18n="mechanism.isoformLabel">α-subunit isoform</span>
+        <select id="m-sub"></select>
+      </label>
+      <label class="check"><input type="checkbox" id="m-flu" /> <span data-i18n="mechanism.addFlumazenil">Add flumazenil (200 nM)</span></label>
+
+      <div class="readouts" id="m-readouts"></div>
+    </aside>
+
+    <!-- Rotatable cryo-EM structure (3Dmol.js) -->
+    <div class="illo-stage">
+      <div class="rx-title" id="rx-title"></div>
+      <div class="mol-wrap">
+        <div id="mol-viewer" class="mol-viewer"><div class="mol-loading" data-i18n="mechanism.loading">Loading cryo-EM structure…</div></div>
+        <p class="mol-hint" data-i18n="mechanism.viewerHint">Drag to rotate · scroll to zoom · select a subunit, ligand or the pore for details</p>
+      </div>
+      <div class="rx-badge" id="rx-badge"></div>
+      <label class="mol-zoom"><span data-i18n="mechanism.zoomLabel">Zoom</span>
+        <input type="range" id="mol-zoom" min="-1" max="2" step="0.05" value="0" aria-label="Zoom level"  data-i18n-aria-label="mechanism.zoomTip"/>
+        <b id="mol-zoom-val">1.0×</b>
+      </label>
+      <div class="mol-toolbar">
+        <button type="button" data-mol="reset" title="Return to the default side view" data-i18n="mechanism.reset" data-i18n-title="mechanism.resetTip">Reset</button>
+        <button type="button" data-mol="top" title="View from the synaptic cleft (extracellular side)" data-i18n="mechanism.topView" data-i18n-title="mechanism.topViewTip">Top view</button>
+        <button type="button" data-mol="cut" id="mol-btn-cut" title="Sectional view: cut through the pore axis, with the two front subunits removed" data-i18n="mechanism.sectionalView" data-i18n-title="mechanism.sectionalViewTip">Sectional view</button>
+        <button type="button" data-mol="surface" id="mol-btn-surface" title="Switch to ribbon (cartoon) view" data-i18n="mechanism.ribbons" data-i18n-title="mechanism.ribbonsTip">Ribbons</button>
+        <button type="button" data-mol="bzd" title="Zoom to the benzodiazepine site (α+/γ2−)" data-i18n="mechanism.bzdSite" data-i18n-title="mechanism.bzdSiteTip">BZD site</button>
+        <button type="button" data-mol="gaba" title="Zoom to the GABA sites (β+/α−)" data-i18n="mechanism.gabaSites" data-i18n-title="mechanism.gabaSitesTip">GABA sites</button>
+        <button type="button" data-mol="gate" title="Zoom to the 9′ leucine gate" data-i18n="mechanism.gate" data-i18n-title="mechanism.gateTip">9′ gate</button>
+        <button type="button" data-mol="animate" id="mol-btn-anim" title="Pause or resume the gating animation" data-i18n="mechanism.pause" data-i18n-title="mechanism.pauseTip">⏸ Pause</button>
+      </div>
+      <div class="legend">
+        <span id="legend-alpha"><i class="dot" style="background:var(--alpha)"></i>α1</span>
+        <span><i class="dot" style="background:var(--beta)"></i>β3</span>
+        <span><i class="dot" style="background:var(--gamma)"></i>γ2</span>
+        <span data-i18n="mechanism.legendGaba"><i class="dot" style="background:var(--gaba)"></i>GABA</span>
+        <span data-i18n="mechanism.legendLigand"><i class="dot" style="background:var(--bzd)"></i>BZD-site ligand</span>
+        <span data-i18n="mechanism.legendClIons"><i class="dot" style="background:var(--cl)"></i>Cl<sup>−</sup> ions</span>
+        <span data-i18n="mechanism.legendSignal"><i class="dot" style="background:#cc5de8"></i>Allosteric signal</span>
+        <span data-i18n="mechanism.legendGate"><i class="dot" style="background:#f59f00"></i>9′ gate (ribbons)</span>
+      </div>
+    </div>
+
+    <!-- Details -->
+    <div class="illo-info">
+      <div id="m-subinfo" class="subinfo"></div>
+      <div id="mol-status" class="mol-status-panel"></div>
+    </div>
+  </div>
+
+  <div class="card kin-card" id="kin-card">
+    <!-- Cl⁻ conditions and flux of the single-channel model -->
+    <aside class="controls kin-side">
+      <h3 data-i18n="mechanism.fluxTitle">Cl⁻ flux</h3>
+      <label><span data-i18n="mechanism.neuronLabel">Neuron (intracellular Cl⁻)</span>
+        <select id="m-neuron"><option value="mature"></option><option value="immature"></option></select>
+      </label>
+      <label><span data-i18n="mechanism.vmLabel">Membrane potential</span> <b id="m-vm-val"></b>
+        <input type="range" id="m-vm" step="1" />
+      </label>
+      <div id="kin-status" class="mol-status-panel"></div>
+    </aside>
+    <!-- Open and desensitised fractions after GABA application (kinetic scheme) -->
+    <div class="kin-main">
+      <h3 data-i18n="mechanism.kineticsTitle">Receptor kinetics during GABA application and washout</h3>
+      <div id="m-plot-kin" class="plot"></div>
+      <div id="m-kin-summary" class="summary"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 2. SUBUNITS ───────────── -->
+<section id="subunits" class="section">
+  <div class="section-head">
+    <span class="step">2</span>
+    <div>
+      <h2 data-i18n="subunits.title">Receptor subunits &amp; clinical effects</h2>
+      <p data-i18n="subunits.intro">The GABA<sub>A</sub> receptor family comprises 19 subunits (α1-6, β1-3, γ1-3, δ, ε, θ, π, ρ1-3); the predominant synaptic isoform is α1β2γ2 with a 2α:2β:1γ stoichiometry. High-affinity BZD binding requires a γ2 subunit and an α1, α2, α3 or α5 subunit bearing a conserved histidine (α1 His101, rat numbering). Point-mutation studies in mice attribute sedation and anterograde amnesia mainly to α1-, anxiolysis to α2/α3-, and aspects of learning and tolerance to α5-containing receptors.
+        The cards below summarise the six α isoforms, with fractional BZD-site occupancy for the ligand and free concentration selected in <a href="#mechanism">Allosteric modulation at the receptor</a> (kept in sync with <a href="#pd">Pharmacodynamics</a>), and the β, γ2 and δ subunits; selecting an α card sets the isoform for all simulations.</p>
+    </div>
+  </div>
+  <div class="card" id="pd-subunits-panel">
+    <div class="panel-head panel-head-compact">
+      <div id="pd-occ-summary-badge" class="sub-effect-status" data-i18n="subunits.occupancyTitle">Active ligand occupancy</div>
+    </div>
+    <div id="pd-subunits-grid" class="subunits-effects-grid"></div>
+  </div>
+  <div class="card dist-card">
+    <h3 data-i18n="subunits.distributionTitle">Regional distribution of α isoforms</h3>
+    <p class="muted" data-i18n="subunits.distributionIntro">Relative abundance of each α subunit by brain region on a brain model built from neuroimaging templates, shown as a rotatable 3D model or as a 2D map rendered from it; one hemisphere is translucent to expose the deep structures (thalamus, striatum, hippocampus, amygdala, hypothalamus), brainstem and cerebellum. Select an isoform to switch the map; the selection applies to all simulations. Hover over a structure for the cell populations concerned.</p>
+    <div id="dist-panel"></div>
+  </div>
+
+
+</section>
+
+<!-- ───────────── 3. SUBSTANCES ───────────── -->
+<section id="substrates" class="section">
+  <div class="section-head">
+    <span class="step">3</span>
+    <div>
+      <h2 data-i18n="substances.title">Benzodiazepine substances</h2>
+      <p data-i18n="substances.intro">Representative ligands with 2D structures and a comparative table of pharmacokinetic and clinical properties. Metabolic pathways are described under <a href="#pk-metabolism">Pharmacokinetics</a>.</p>
+    </div>
+  </div>
+
+  <div class="ligand-gallery" id="ligand-gallery"></div>
+
+
+  <div class="card" style="margin-top: 1.25rem;">
+    <h3 data-i18n="substances.tableTitle">Substances comparison &amp; clinical pharmacology</h3>
+    <p class="muted" data-i18n="substances.tableIntro">Filter by duration class or direct-glucuronidation (LOT) pathway, or search by INN, class, indication, active metabolite or clearance enzyme. Selecting a row applies the substance to all simulations. All data are listed in the searchable <a href="properties.html">data tables</a>.</p>
+    <div id="substances-table-container"></div>
+  </div>
+</section>
+
+<!-- ───────────── 4. ADMINISTRATION ROUTES ───────────── -->
+<section id="routes" class="section">
+  <div class="section-head">
+    <span class="step">4</span>
+    <div>
+      <h2 data-i18n="routes.title">Administration routes &amp; onset of action</h2>
+      <p data-i18n="routes.intro">Seven routes of administration (IV, intranasal, buccal, rectal, sublingual, IM, oral) compared by onset, time to peak concentration and systemic bioavailability, with emphasis on the emergency treatment of seizures.</p>
+    </div>
+  </div>
+  <div id="routes-container"></div>
+</section>
+
+<!-- ───────────── 5. PHARMACODYNAMICS ───────────── -->
+<section id="pd" class="section">
+  <div class="section-head">
+    <span class="step">5</span>
+    <div>
+      <h2 data-i18n="pd.title">Pharmacodynamics</h2>
+      <p data-i18n="pd.intro">Allosteric model with competitive binding at the BZD site: the fractional BZD-site occupancy is <span class="tex" data-tex="\theta = (C/K_i)\,/\,(1 + C/K_i + C_{\mathrm{flu}}/K_{\mathrm{flu}})">θ = (C/K<sub>i</sub>) / (1 + C/K<sub>i</sub> + C<sub>flu</sub>/K<sub>flu</sub>)</span> and the apparent GABA EC<sub>50</sub> is <span class="tex" data-tex="\mathrm{EC}_{50}^{\,\mathrm{app}} = \mathrm{EC}_{50}\,/\,[1 + (\beta - 1)\,\theta]">EC<sub>50</sub><sup>app</sup> = EC<sub>50</sub> / [1 + (β − 1)·θ]</span>,
+        where C is the free ligand concentration and K<sub>i</sub> its dissociation constant, C<sub>flu</sub> and K<sub>flu</sub> those of flumazenil, and β the cooperativity factor of the ligand (β &gt; 1, PAM; β = 1, neutral antagonist; β &lt; 1, inverse agonist/NAM). A pure PAM shifts the GABA concentration-response curve to the left without altering E<sub>max</sub>.</p>
+    </div>
+  </div>
+
+  <div class="card controls-row pd-controls">
+    <label><span data-i18n="pd.ligandLabel">Ligand</span> <select id="pd-drug"></select></label>
+    <label><span data-i18n="pd.isoformLabel">α-subunit isoform</span> <select id="pd-sub"></select></label>
+    <label><span data-i18n="pd.concLabel">Free ligand:</span> <b id="pd-conc-val"></b>
+      <input type="range" id="pd-conc" min="-1" max="4" step="0.01" value="2" />
+    </label>
+    <label class="check"><input type="checkbox" id="pd-flu-on" /> <span data-i18n="pd.fluLabel">Flumazenil:</span> <b id="pd-flu-val"></b>
+      <input type="range" id="pd-flu" min="-1" max="4" step="0.05" value="2" />
+    </label>
+  </div>
+
+  <div class="plot-grid">
+    <div class="card plot-card">
+      <h3 data-i18n="pd.crTitle">GABA concentration-response (allosteric shift)</h3>
+      <div id="pd-plot-cr" class="plot"></div>
+      <div id="pd-cr-summary" class="summary"></div>
+    </div>
+    <div class="card plot-card">
+      <h3 data-i18n="pd.occTitle">BZD-site occupancy by α isoform</h3>
+      <div id="pd-plot-occ" class="plot"></div>
+      <div id="pd-occ-summary" class="summary"></div>
+    </div>
+    <div class="card plot-card">
+      <h3 data-i18n="pd.ipscTitle">Simulated GABAergic IPSC (Cl<sup>−</sup> current)</h3>
+      <div id="pd-plot-ipsc" class="plot"></div>
+      <div id="pd-ipsc-summary" class="summary"></div>
+    </div>
+    <div class="card plot-card">
+      <h3 data-i18n="pd.selTitle">Subunit selectivity (binding affinity, pK<sub>i</sub>)</h3>
+      <div id="pd-plot-sel" class="plot"></div>
+      <div id="pd-sel-summary" class="summary"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 6. PHARMACOKINETICS ───────────── -->
+<section id="pk" class="section">
+  <div class="section-head">
+    <span class="step">6</span>
+    <div>
+      <h2 data-i18n="pk.title">Pharmacokinetics</h2>
+      <p data-i18n="pk.intro">One-compartment model with first-order absorption and elimination, including active metabolites (e.g. nordiazepam, temazepam and oxazepam after diazepam) and patient- and interaction-related modifiers acting on specific elimination pathways (CYP3A4, CYP2C19, glucuronidation, renal excretion).</p>
+    </div>
+  </div>
+
+  <div class="card controls-row single-line">
+    <label class="wide"><span data-i18n="pk.drugLabel">Drug</span> <select id="pk-drug"></select></label>
+    <label><span data-i18n="pk.routeLabel">Route</span>
+      <select id="pk-route">
+        <option value="oral" data-i18n="pk.routeOral">Oral (PO)</option>
+        <option value="iv" data-i18n="pk.routeIv">IV bolus</option>
+        <option value="im" data-i18n="pk.routeIm">Intramuscular (IM)</option>
+      </select>
+    </label>
+    <label><span data-i18n="pk.doseLabel">Dose (mg)</span> <input type="number" id="pk-dose" min="0.05" step="0.05" value="10" /></label>
+    <label><span data-i18n="pk.dosesLabel">Doses</span> <input type="number" id="pk-n" min="1" max="60" step="1" value="1" /></label>
+    <label><span data-i18n="pk.intervalLabel">Interval τ (h)</span> <input type="number" id="pk-tau" min="1" max="72" step="1" value="24" /></label>
+    <label><span data-i18n="pk.weightLabel">Body weight (kg)</span> <input type="number" id="pk-wt" min="30" max="150" step="1" value="70" /></label>
+    <label><span data-i18n="pk.scaleLabel">Y-axis</span>
+      <select id="pk-scale"><option value="linear" data-i18n="pk.scaleLinear">Linear</option><option value="log" data-i18n="pk.scaleLog">Log</option></select>
+    </label>
+  </div>
+  <div class="card controls-row mods" id="pk-mods"></div>
+
+  <div class="plot-grid">
+    <div class="card plot-card wide">
+      <div class="plot-head">
+        <h3 data-i18n="pk.profileTitle">Plasma concentration-time profile</h3>
+        <div class="plot-actions">
+          <button type="button" id="pk-accum-btn" title="Repeat the dose until steady state is reached" data-i18n="pk.showAccumulation" data-i18n-title="pk.accumulationTip">📈 Show accumulation</button>
+          <button type="button" id="pk-single-btn" title="Back to a single dose" data-i18n="pk.singleDose" data-i18n-title="pk.singleDoseTip">Single dose</button>
+        </div>
+      </div>
+      <div id="pk-plot-ct" class="plot tall"></div>
+      <div id="pk-accum-summary" class="summary"></div>
+    </div>
+    <div class="card plot-card">
+      <h3 data-i18n="pk.paramsTitle">Derived PK parameters</h3>
+      <table class="params" id="pk-params"></table>
+      <div id="pk-notes" class="summary"></div>
+    </div>
+    <div class="card plot-card">
+      <h3 data-i18n="pk.durationTitle">Duration of action comparison</h3>
+      <div id="pk-plot-cmp" class="plot"></div>
+      <div id="pk-cmp-summary" class="summary"></div>
+    </div>
+  </div>
+  <div class="card pk-metabolism" id="pk-metabolism">
+    <h3 data-i18n="pk.metabolismTitle">Biotransformation &amp; active metabolites</h3>
+    <p class="muted" data-i18n="pk.metabolismIntro">Most BZDs undergo hepatic phase I oxidation (CYP3A4, CYP2C19) before phase II glucuronidation, often yielding pharmacologically active metabolites with long half-lives; lorazepam, oxazepam and temazepam are glucuronidated directly. These pathways determine the modifier effects simulated above.</p>
+    <div class="pathways" id="metabolic-pathways"></div>
+  </div>
+</section>
+
+<!-- ───────────── 7. DOSE-RESPONSE & CEILING EFFECT ───────────── -->
+<section id="dose" class="section">
+  <div class="section-head">
+    <span class="step">7</span>
+    <div>
+      <h2 data-i18n="dose.title">Dose-dependent effects &amp; the ceiling effect</h2>
+      <p data-i18n="dose.intro">Graded clinical effects with increasing dose and the plateau imposed by positive allosteric modulation, contrasted with sedative-hypnotics that gate the channel directly and with co-administered CNS depressants. Curves are computed for the ligand selected in <a href="#pd">Pharmacodynamics</a>.</p>
+    </div>
+  </div>
+  <div class="plot-grid dose-grid" id="dose-panel">
+    <div class="card plot-card">
+      <h3 data-i18n="dose.curvesTitle">Dose-effect curves</h3>
+      <div id="dose-plot" class="plot"></div>
+    </div>
+    <div class="card">
+      <h3 data-i18n="dose.effectsTitle">Graded effects and the ceiling</h3>
+      <div id="dose-summary" class="summary dose-text"></div>
+    </div>
+  </div>
+  <div class="card dose-warn-card">
+    <h3 data-i18n="dose.overdoseTitle">Benzodiazepine overdose and loss of the ceiling</h3>
+    <div id="dose-warn" class="summary dose-text"></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <details class="notes">
+    <summary data-i18n="notes.title">Notes &amp; limitations</summary>
+    <ul>
+      <li data-i18n="notes.parameterValues"><b>Parameter values.</b> Pharmacodynamic parameters (K<sub>i</sub>, cooperativity factor β) and population pharmacokinetic parameters (t½, V<sub>d</sub>, F, k<sub>a</sub>) are taken from FDA prescribing information, the IUPHAR/BPS Guide to Pharmacology, ChEMBL and primary papers, rounded for teaching; reference concentration ranges are indicative only. The source and verification status of each value are listed in the <a href="properties.html">data tables</a>.</li>
+      <li data-i18n="notes.pharmacodynamicModel"><b>Pharmacodynamic model.</b> A single allosteric term shifts the apparent GABA EC<sub>50</sub> in proportion to BZD-site occupancy. Receptor reserve, desensitisation, state-dependent binding and differences between synaptic and extrasynaptic populations are not represented.</li>
+      <li data-i18n="notes.subtypeSelectivity"><b>Subtype selectivity shows affinity only.</b> The selectivity radar plots binding affinity (pK<sub>i</sub>) per α isoform, without separate potency (pEC<sub>50</sub>) or efficacy plots. In this model the allosteric shift scales linearly with occupancy and each ligand has one cooperativity factor β for all isoforms, so potency follows pK<sub>i</sub> within about 0.2 log units and efficacy is uniform; such plots would duplicate the affinity profile. For the clinical agents included, this matches their pharmacology: classical BZDs are non-selective in efficacy, and zolpidem's α1 preference is one of affinity. Efficacy selectivity - compounds such as L-838,417 or TPA023 that bind α1 without potentiating it - is real but outside the scope of this model.</li>
+      <li data-i18n="notes.pharmacokineticModel"><b>Pharmacokinetic model.</b> One compartment with first-order absorption and elimination. Distribution kinetics are therefore absent: the single-dose effect of lipophilic agents such as diazepam is in reality shortened by redistribution from brain to peripheral tissue, which this model does not capture. For the same reason the early peak of such drugs is underestimated (about 3-fold for oral diazepam). Absorption rate constants were fitted to the time to peak reported in FDA labels or primary studies, and the model was then compared with independent single-dose studies: predicted peak concentrations were within 2-fold of observed values in most cases (see the validation in the <a href="properties.html">data tables</a>). The onset of action and T<sub>max</sub> shown in the administration-route card are clinical values.</li>
+      <li data-i18n="notes.freeConcentration"><b>Free concentration.</b> Derived as peak plasma concentration × unbound fraction, assuming free brain concentration approximates free plasma concentration and ignoring active transport and protein-binding displacement. Occupancy uses the parent drug only: active metabolites (e.g. nordiazepam after diazepam) are not included, so occupancies at clinically equivalent doses are not directly comparable between drugs.</li>
+      <li data-i18n="notes.combinedExposure"><b>Combined exposure.</b> In the plasma profile, parent drug and active metabolites are summed as concentrations without adjustment for differing potency.</li>
+      <li data-i18n="notes.doseResponseCurves"><b>Dose-response curves.</b> Illustrative: GABA tone 5 µM at α1-containing receptors, with 1× dose set to ≈ 30% occupancy. Clinical effect bands and the opioid interaction term are approximate and chosen for teaching, not fitted to data.</li>
+      <li data-i18n="notes.regionalDistribution"><b>Regional distribution.</b> Abundance levels are a qualitative summary of immunohistochemistry and in situ hybridisation, mainly in rodent brain; human distribution is broadly similar but less completely mapped. Levels are relative within each isoform and not comparable in absolute receptor density between isoforms. Each structure is shaded uniformly, so laminar and nuclear differences (e.g. α3 confined to the reticular thalamic nucleus) appear only in the descriptions. The 3D brain combines the fsaverage cortical surface with structures segmented from the MNI152 2009c template, aligned by bounding boxes (accurate to a few millimetres); the hypothalamus, olfactory bulbs and spinal cord are approximated by simple shapes, and the cerebellar folia are rendered, not modelled. The 2D map is a lateral view rendered offline from the same model and coloured in the page, so it does not require WebGL; it is shown automatically if the 3D view is unavailable.</li>
+      <li data-i18n="notes.channelGating"><b>Channel gating and Cl⁻ flux.</b> The 3D view animates a single receptor with the kinetic (Markov) scheme of α1β3γ2L receptors of Haas and Macdonald (1999; rate constants as corrected in the 2004 erratum): two GABA binding steps, three open states with bursts of brief closures, and fast, intermediate and slow desensitised states. In the animation GABA is applied at the selected concentration in repeating cycles of application and washout (timing shown under the gate state), so activation, desensitisation, deactivation and recovery recur; the time course of a 4 s application and the recovery after washout are plotted below the viewer. Animation time is slowed 20-fold, and the gate is drawn open for each burst of openings (the brief closures within a burst are not drawn). A BZD-site ligand multiplies the GABA association rate at both binding steps by the EC<sub>50</sub> shift of the allosteric model, so openings become more frequent while open and burst durations stay unchanged (Rogers et al., 1994; Lavoie and Twyman, 1996). Other studies place the BZD effect on a preactivation step after GABA binding (Gielen et al., 2012), and the slower deactivation of IPSCs seen in neurons (Mellor and Randall, 1997) is not reproduced by this mechanism. The scheme was measured with GABA alone, not with any BZD-site ligand: every ligand uses the same scheme and differs only through its occupancy and cooperativity factor, which set its EC<sub>50</sub> shift; drug-specific kinetic effects are not modelled. The scheme was derived from recombinant receptors at <span data-sc="kinTempLow_C">22</span>-<span data-sc="kinTempHigh_C">23</span> °C and is used for all α isoforms; the open probability readouts use this scheme, whereas the concentration-response and dose-effect curves use the equilibrium allosteric model, which has no desensitisation. The simulated IPSC in Pharmacodynamics has the rise and biexponential decay of IPSCs in cultured hippocampal neurons (Jones and Westbrook, 1995), with decay prolonged by PAMs as calibrated to Mellor and Randall (1997). Single-channel currents follow the Goldman-Hodgkin-Katz equations: the Cl⁻ permeability follows from γ = <span data-sc="conductance_pS">27</span> pS in symmetrical <span data-sc="symmetricCl_mM">140</span> mM Cl⁻, and HCO₃⁻ permeates with P<sub>HCO3</sub>/P<sub>Cl</sub> = <span data-sc="pHCO3_pCl">0.18</span> (HCO₃⁻ <span data-sc="hco3Out_mM">25</span> mM outside, <span data-sc="hco3In_mM">15</span> mM inside). Extracellular Cl⁻ is <span data-sc="clOut_mM">130</span> mM; intracellular Cl⁻ is <span data-sc="clIn_mM">8</span> mM in a mature neuron (E<sub>Cl</sub> = <span data-sc="eCl_mV">−74.5</span> mV, E<sub>GABA</sub> = <span data-sc="eGABA_mV">−67.7</span> mV) or <span data-sc="clInImmature_mM">30</span> mM in an immature neuron, where Cl⁻ uptake by NKCC1 before KCC2 expression keeps it high and GABA depolarises. V<sub>m</sub> is adjustable (default <span data-sc="vm_mV">−65</span> mV; <span data-sc="temperature_C">37</span> °C). In the mature gradient the Cl⁻ current rectifies outwardly (Bormann et al., 1987), so at the default V<sub>m</sub> an open channel carries <span data-sc="iCl_pA">0.047</span> pA of Cl⁻ current, far less than γ(V<sub>m</sub> − E<sub>Cl</sub>) predicts. The net Cl⁻ flux readout is P<sub>o</sub> × i<sub>Cl</sub>/e at the peak and at steady state of the kinetic scheme. In the animation, ions reach the gate from the side the net flux comes from, at a rate proportional to it (none at E<sub>Cl</sub>, where the unidirectional fluxes balance); they pass only while the gate is open and otherwise return, without queuing, so the mean flux is proportional to the open probability. Only net flux is drawn, and counts are scaled for display (scale shown under the flux readout). Membrane potential and ion concentrations are held constant: the voltage change caused by the current, Cl⁻ accumulation and saturation of permeation are not modelled. Flumazenil returns the flux to the GABA-alone level; it does not block the channel.</li>
+      <li data-i18n="notes.structure"><b>Structure.</b> The displayed structure is the α1β3γ2 template (PDB 6HUP); other α isoforms are indicated by colour and labels only, and sequence differences are not modelled. Ligands other than diazepam and flumazenil are shown on the diazepam pose.</li>
+    </ul>
+  </details>
+  <details class="refs">
+    <summary data-i18n="refs.title">Key references</summary>
+    <ol>
+      <li>Masiulis S, et al. GABA<sub>A</sub> receptor signalling mechanisms revealed by structural pharmacology. <i>Nature</i> 2019;565:454-459. (PDB 6HUP)</li>
+      <li>Zhu S, et al. Structure of a human synaptic GABA<sub>A</sub> receptor. <i>Nature</i> 2018;559:67-72. (PDB 6D6U)</li>
+      <li>Sigel E, Ernst M. The benzodiazepine binding sites of GABA<sub>A</sub> receptors. <i>Trends Pharmacol Sci</i> 2018;39:659-671.</li>
+      <li>Rudolph U, Knoflach F. Beyond classical benzodiazepines: novel therapeutic potential of GABA<sub>A</sub> receptor subtypes. <i>Nat Rev Drug Discov</i> 2011;10:685-697.</li>
+      <li>Rudolph U, et al. Benzodiazepine actions mediated by specific γ-aminobutyric acid<sub>A</sub> receptor subtypes. <i>Nature</i> 1999;401:796-800.</li>
+      <li>Pirker S, Schwarzer C, Wieselthaler A, Sieghart W, Sperk G. GABA<sub>A</sub> receptors: immunocytochemical distribution of 13 subunits in the adult rat brain. <i>Neuroscience</i> 2000;101:815-850.</li>
+      <li>Fischl B, Sereno MI, Tootell RBH, Dale AM. High-resolution intersubject averaging and a coordinate system for the cortical surface. <i>Hum Brain Mapp</i> 1999;8:272-284. (fsaverage)</li>
+      <li>Fonov V, Evans AC, Botteron K, Almli CR, McKinstry RC, Collins DL. Unbiased average age-appropriate atlases for pediatric studies. <i>NeuroImage</i> 2011;54:313-327. (MNI152 2009c)</li>
+      <li>Ciric R, Thompson WH, Lorenz R, et al. TemplateFlow: FAIR-sharing of multi-scale, multi-species brain models. <i>Nat Methods</i> 2022;19:1568-1571.</li>
+      <li>Fritschy JM, Mohler H. GABA<sub>A</sub>-receptor heterogeneity in the adult rat brain: differential regional and cellular distribution of seven major subunits. <i>J Comp Neurol</i> 1995;359:154-194.</li>
+      <li>Griffin CE 3rd, et al. Benzodiazepine pharmacology and central nervous system-mediated effects. <i>Ochsner J</i> 2013;13:214-223.</li>
+      <li>Gaudreault P, Guay J, Thivierge RL, Verdy I. Benzodiazepine poisoning: clinical and pharmacological considerations and treatment. <i>Drug Saf</i> 1991;6:247-265.</li>
+      <li>Buckley NA, Dawson AH, Whyte IM, O'Connell DL. Relative toxicity of benzodiazepines in overdose. <i>BMJ</i> 1995;310:219-221.</li>
+      <li>Isbister GK, O'Regan L, Sibbritt D, Whyte IM. Alprazolam is relatively more toxic than other benzodiazepines in overdose. <i>Br J Clin Pharmacol</i> 2004;58:88-95.</li>
+      <li>Bormann J, Hamill OP, Sakmann B. Mechanism of anion permeation through channels gated by glycine and γ-aminobutyric acid in mouse cultured spinal neurones. <i>J Physiol</i> 1987;385:243-286.</li>
+      <li>Ashton CH. Benzodiazepines: how they work and how to withdraw (the Ashton Manual). Newcastle University; 2002 (revised).</li>
+    </ol>
+  </details>
+  <details class="refs">
+    <summary data-i18n="credits.title">Libraries &amp; data sources</summary>
+    <ul>
+      <li data-i18n="credits.libraries"><b>Libraries:</b> Plotly.js (plots), 3Dmol.js (receptor structure), three.js (3D brain), RDKit (2D chemical structures, rendered when building the site), KaTeX (equations).</li>
+      <li data-i18n="credits.data"><b>Data:</b> all drug, molecular, receptor, regional and model data used by the app are kept in one file, <a href="assets/data/properties.json">assets/data/properties.json</a>, and can be browsed in the searchable <a href="properties.html">data tables</a>, together with the source of each value.</li>
+      <li data-i18n="credits.structureData"><b>Structure data:</b> RCSB Protein Data Bank, entries 6HUP and 6D6U.</li>
+      <li data-i18n="credits.brainModels"><b>Brain models:</b> FreeSurfer fsaverage and the ICBM 152 2009c template (© 1993-2004 Louis Collins, McConnell Brain Imaging Centre, Montreal Neurological Institute, McGill University), via TemplateFlow.</li>
+    </ul>
+  </details>
+  <div class="footer-meta">
+    <p><span data-i18n="footer.disclaimer">For education only. Models are simplified and parameters approximate; not intended to guide clinical decisions.</span> <span class="ai-notice" data-i18n="footer.aiNotice">Developed with the assistance of generative AI (Claude, Anthropic) for code, data checks and translation; content selected, verified against the cited sources and maintained by the author.</span></p>
+    <p class="copyright">© <span id="copyright-year">2026</span> <a href="https://github.com/impressio" target="_blank" rel="noopener">impressio</a><span class="sep" aria-hidden="true">·</span><a href="https://github.com/impressio/Benzodiazepines" target="_blank" rel="noopener" data-i18n="footer.sourceCode">source code</a></p>
+  </div>
+  <script>(() => { const y = new Date().getFullYear(); document.getElementById('copyright-year').textContent = y > 2026 ? `2026-${y}` : '2026'; })();</script>
+</footer>
+
+<script src="js/tex.js" defer></script>
+<script src="js/model-files.js" defer></script>
+<script src="js/data.js" defer></script>
+<script src="js/models.js" defer></script>
+<script src="js/receptor.js" defer></script>
+<script src="js/substrates.js" defer></script>
+<script src="js/routes.js" defer></script>
+<script src="js/brain3d.js" defer></script>
+<script src="js/distribution.js" defer></script>
+<script src="js/pd.js" defer></script>
+<script src="js/pk.js" defer></script>
+<script src="js/structure.js" defer></script>
+<script src="js/main.js" defer></script>
+</body>
+</html>

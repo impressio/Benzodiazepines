@@ -1,0 +1,4708 @@
+{
+  "meta": {
+    "title": "Benzodiazepines app: domain data",
+    "note": "Single source of the domain data used and shown by the app: drug, molecular, receptor, route, regional and model data. Values are approximate, rounded literature-range figures for teaching; edit here to correct them. Colours stored with items are their display colours.",
+    "units": {
+      "subunits.*.gabaEC50": "GABA EC50 at the alpha-beta-gamma2 receptor (uM)",
+      "drugs.*.mw": "molecular weight (g/mol)",
+      "drugs.*.smiles": "SMILES (used to draw the 2D structure, tools/build_structures.py)",
+      "drugs.*.pd.emax": "cooperativity factor beta: maximal fold-shift of GABA EC50 (>1 PAM, 1 neutral antagonist, <1 inverse agonist)",
+      "drugs.*.pd.ki": "Ki per alpha isoform (nM); null = no measurable binding (BZD-insensitive)",
+      "drugs.*.pk.F": "oral bioavailability (fraction 0-1)",
+      "drugs.*.pk.ka": "first-order absorption rate constant (1/h)",
+      "drugs.*.pk.t12": "elimination half-life (h)",
+      "drugs.*.pk.vd": "volume of distribution (L/kg)",
+      "drugs.*.pk.fu": "unbound fraction in plasma (0-1)",
+      "drugs.*.pk.dose": "default dose (mg)",
+      "drugs.*.pk.tau": "default dosing interval (h)",
+      "drugs.*.pk.ref": "therapeutic or reference plasma range [low, high] (ng/mL); null = not defined",
+      "drugs.*.pk.pathways": "fraction of clearance by pathway (cyp3a4, cyp2c19, ugt, other); sums to 1",
+      "drugs.*.pk.im / pk.rt.<route>": "route-specific bioavailability F (0-1) and ka (1/h)",
+      "drugs.*.pk.metabolites": "active metabolites: fm (fraction of parent formed), t12 (h), vd (L/kg), pathways; mw: molecular weight (g/mol, PubChem), used for molar units",
+      "modifiers.*.m": "multiplier on clearance by pathway (patient factor or interaction)",
+      "modifiers.*.vLipo": "multiplier on Vd of lipophilic drugs",
+      "subunits.*": "alpha isoforms: label, gabaEC50 (uM), BZD sensitivity, determinant residue, effects, distribution, clinical relevance",
+      "drugs.*.pd.kind": "mechanism at the BZD site (PAM, Partial PAM, Antagonist, Inverse agonist)",
+      "drugRoutes.<drug>.<route>": "clinical speed category, onset of action, Tmax (text ranges), indications, advantages and cautions",
+      "regions.abundance.<isoform>.<region>": "relative abundance level (0 absent or trace, 1 low, 2 moderate, 3 high) and the cell populations concerned",
+      "model.hill": "Hill coefficient of GABA activation",
+      "model.singleChannel": "Cl- and HCO3- flux readout (GHK current equation): single-channel conductance (pS) measured in symmetrical Cl- (symmetricCl_mM); extracellular and intracellular Cl- (mM) in mature neurons (clIn_mM) and immature neurons (clInImmature_mM); default membrane potential and the limits of its slider (vmMin_mV, vmMax_mV; mV); temperature (deg C); extracellular and intracellular HCO3- (mM) and the HCO3-/Cl- permeability ratio; E_Cl, E_HCO3 (Nernst) and E_GABA (GHK voltage equation) follow from these",
+      "model.kinetics": "kinetic (Markov) scheme of the alpha1beta3gamma2L receptor (Haas & Macdonald 1999, Fig. 7, rates as corrected in the 2004 erratum), recorded at temperatureLow_C-temperatureHigh_C (deg C). States: C1 unbound, C2 one GABA bound, C3 and C4 two bound (closed); O1 (from C2), O2 (from C3), O3 (from C4); desensitised Df (from C3), Di (from C4), Ds (from Di); distal brief closed states C5-C10, two per open state. Rates in 1/s except kon (1/(M s)): C1->C2 2*kon*[GABA], C2->C1 koff, C2->C3 kon*[GABA], C3->C2 2*koff, C3<->C4 k34/k43, open (beta) and close (alpha) rates per open state, df/rf, di/ri, ds/rs; a12o/b12o: rates from the two distal closed states back to O1 and O2, a12c/b12c: rates from O1 and O2 into them; a3o, b3o, a3c, b3c the same for O3. BZD-site ligands multiply kon by the EC50 shift of the allosteric model",
+      "model.ipsc": "simulated IPSC: control peak amplitude (pA), effective peak synaptic GABA (uM; sets the amplitude change with the allosteric shift), rise time constant (ms), fast and slow decay time constants (ms) and the fraction of the fast component; decay time constants are multiplied by shift^decayShiftExponent",
+      "model.routeDefaults": "absorption (F, ka 1/h) used when a drug has no route-specific data",
+      "model.doseResponse": "dose-effect figure: GABA tone (uM), subunit, BZD concentration at 1x dose as a multiple of Ki, opioid effect and synergy, barbiturate constants, effect bands (% of max)",
+      "model.durationComparison": "drugs and oral doses (mg) in the duration-of-action comparison",
+      "routes[]": "administration routes: onset, onsetMin (representative onset in min, used for bar length), Tmax, bioavailability, indications, advantages, limitations",
+      "references": "literature cited by the data, checked against PubMed (authors, year, title, journal, volume, pages, pmid, doi); FDA labels carry setid and url (DailyMed)",
+      "sources": "source of each value, keyed by its path in this file: refs (ids in references), reported (value reported in the source), status (consistent = within the reported value or range; differs = outside it; full text = cited, value still to be checked against the full text; model = teaching parameter of the model; calibrated = fitted to the calibration data in \"validation\"), note",
+      "sourceChecks": "settings for tools/check_sources.py: path of the Ki values in each drug, tolerated fold difference, ChEMBL target ids and Guide to Pharmacology target names per subunit, species",
+      "validation": "observed single-dose peak plasma concentrations in adults: set (calibration = used to fit ka; validation = independent studies, not used for fitting), drug, route, dose (mg), cmax (ng/mL) and tmax (h), each a value or [low, high] range, refs, note; tmaxUpper = the reported Tmax is an upper bound (\"peak within ...\")",
+      "jurisdictions": "region-specific values: us (base data, FDA labels, US brands) and eu (overlay of values that differ in EU SmPCs as published in FASS, Swedish product names); concentrationUnit is the plasma concentration unit shown (ng/mL and µg/L are numerically equal); data is merged over the base data when the region is selected; se inherits the eu values and shows plasma concentrations in nmol/L, converted with each molecular weight: nmol/L = ng/mL × 1000 / MW"
+    }
+  },
+  "subunits": {
+    "a1": {
+      "label": "α1",
+      "bzdSensitive": true,
+      "residue": "His101",
+      "effect": "Sedation, anterograde amnesia, part of anticonvulsant action, ataxia",
+      "location": "~60% of brain GABA<sub>A</sub> receptors · cortex, thalamus, cerebellum (synaptic)",
+      "clinical": "Target of α1-preferring hypnotics (zolpidem); mediates the main dose-limiting adverse effects (sedation, psychomotor impairment, falls) and is implicated in reinforcement and dependence.",
+      "gabaEC50": 15
+    },
+    "a2": {
+      "label": "α2",
+      "bzdSensitive": true,
+      "residue": "His101",
+      "effect": "Anxiolysis, muscle relaxation (myorelaxation)",
+      "location": "~15-20% · limbic system (amygdala, hippocampus), spinal cord",
+      "clinical": "Considered the principal mediator of BZD anxiolysis; the rationale for α2/α3-selective PAMs developed as non-sedating anxiolytics and analgesics.",
+      "gabaEC50": 12
+    },
+    "a3": {
+      "label": "α3",
+      "bzdSensitive": true,
+      "residue": "His126",
+      "effect": "Anxiolysis, muscle relaxation (spinal)",
+      "location": "~10-15% · reticular thalamic nucleus, monoaminergic nuclei",
+      "clinical": "With α2, a target for non-sedating anxiolytics; contributes to spinal antihyperalgesia relevant to chronic pain.",
+      "gabaEC50": 40
+    },
+    "a5": {
+      "label": "α5",
+      "bzdSensitive": true,
+      "residue": "His105",
+      "effect": "Learning & memory; contributes to amnesia and tolerance to sedation",
+      "location": "<5% · hippocampus CA1/CA3, largely extrasynaptic (tonic inhibition)",
+      "clinical": "α5-selective negative modulators (e.g. basmisanil) have been investigated as cognitive enhancers.",
+      "gabaEC50": 8
+    },
+    "a4": {
+      "label": "α4",
+      "bzdSensitive": false,
+      "residue": "Arg (≙ H101R)",
+      "effect": "BZD-insensitive · tonic inhibition (often with δ); neurosteroid-sensitive and a proposed low-dose ethanol target",
+      "location": "Thalamus, dentate gyrus · extrasynaptic",
+      "clinical": "Unaffected by flumazenil; extrasynaptic α4βδ receptors are a target of neurosteroids (cf. brexanolone and zuranolone in postpartum depression).",
+      "gabaEC50": 3
+    },
+    "a6": {
+      "label": "α6",
+      "bzdSensitive": false,
+      "residue": "Arg (≙ H101R)",
+      "effect": "BZD-insensitive (classical BZDs) · tonic inhibition",
+      "location": "Cerebellar granule cells",
+      "clinical": "Not targeted by clinically used BZDs; contributes to cerebellar motor coordination and ethanol sensitivity.",
+      "gabaEC50": 2
+    }
+  },
+  "otherSubunits": [
+    {
+      "key": "b",
+      "label": "β2/3",
+      "color": "#3CCB8F",
+      "sens": null,
+      "status": "Orthosteric GABA site",
+      "facts": [
+        [
+          "Interface",
+          "principal (+) face of both GABA sites (β+/α−)"
+        ],
+        [
+          "Key residues",
+          "β2 Tyr97, Tyr157, Phe200, Tyr205 (GABA binding)"
+        ],
+        [
+          "BZD site",
+          "not involved; low-affinity TMD sites at µM diazepam"
+        ]
+      ],
+      "effect": "Required for receptor assembly and for GABA binding and gating",
+      "clinical": "β+/α− transmembrane sites mediate general anaesthetics: β3 N265M knock-in mice lose the immobilising action of propofol and etomidate, and β2 N265S mice lose the sedative action of etomidate. Not targeted by clinical BZD doses.",
+      "location": "Present in virtually all GABA<sub>A</sub> receptors; β2 most abundant, β3 prominent in cortex, hippocampus and striatum"
+    },
+    {
+      "key": "g",
+      "label": "γ2",
+      "color": "#F4A340",
+      "sens": true,
+      "status": "Required for BZD binding",
+      "facts": [
+        [
+          "Interface",
+          "complementary (−) face of the BZD site (α+/γ2−)"
+        ],
+        [
+          "Key residues",
+          "γ2 Phe77, Met130 (BZD pocket)"
+        ],
+        [
+          "Stoichiometry",
+          "one γ2 per pentamer (2α:2β:1γ)"
+        ]
+      ],
+      "effect": "Confers high-affinity BZD sensitivity, increases single-channel conductance and mediates postsynaptic clustering via gephyrin",
+      "clinical": "γ2 F77I knock-in mice are insensitive to zolpidem; GABRG2 variants cause genetic epilepsies (e.g. GEFS+, febrile seizures). Receptors lacking γ2 do not respond to BZDs or flumazenil.",
+      "location": "Widespread; the majority of synaptic receptors (α1/2/3βγ2)"
+    },
+    {
+      "key": "d",
+      "label": "δ",
+      "color": "#ADB5BD",
+      "sens": false,
+      "status": "BZD-insensitive",
+      "facts": [
+        [
+          "Assembly",
+          "replaces γ2: α4βδ, α6βδ (and α1βδ) receptors"
+        ],
+        [
+          "BZD site",
+          "absent (no α+/γ2− interface)"
+        ],
+        [
+          "Pharmacology",
+          "high GABA sensitivity, slow desensitisation"
+        ]
+      ],
+      "effect": "Mediates tonic (extrasynaptic) inhibition that sets neuronal excitability",
+      "clinical": "Target of neurosteroids (allopregnanolone; brexanolone and zuranolone in postpartum depression) and of gaboxadol; proposed site of low-dose ethanol action. Classical BZDs and flumazenil have no effect.",
+      "location": "Dentate gyrus granule cells and thalamus (with α4), cerebellar granule cells (with α6)"
+    }
+  ],
+  "drugs": {
+    "diazepam": {
+      "name": "Diazepam",
+      "brand": "Valium",
+      "color": "#7048E8",
+      "role": "PAM · LA",
+      "roleColor": "#7048E8",
+      "routes": [
+        "oral",
+        "rectal",
+        "nasal",
+        "im",
+        "iv"
+      ],
+      "defaultRoute": "oral",
+      "use": "Anxiety, alcohol withdrawal, status epilepticus, muscle spasm",
+      "mw": 284.7,
+      "smiles": "CN1C(=O)CN=C(C2=C1C=CC(=C2)Cl)C3=CC=CC=C3",
+      "pd": {
+        "kind": "PAM",
+        "emax": 3,
+        "ki": {
+          "a1": 14,
+          "a2": 20,
+          "a3": 15,
+          "a5": 11,
+          "a4": null,
+          "a6": null
+        }
+      },
+      "pk": {
+        "F": 0.95,
+        "ka": 4.5,
+        "t12": 43,
+        "vd": 1.1,
+        "fu": 0.02,
+        "lipophilic": true,
+        "highFirstPass": false,
+        "pathways": {
+          "cyp2c19": 0.5,
+          "cyp3a4": 0.5
+        },
+        "dose": 10,
+        "tau": 24,
+        "ref": [
+          100,
+          1000
+        ],
+        "im": {
+          "F": 0.85,
+          "ka": 0.5
+        },
+        "metabolite": {
+          "name": "Nordiazepam",
+          "fm": 0.65,
+          "t12": 70,
+          "vd": 1,
+          "pathways": {
+            "cyp3a4": 0.6,
+            "cyp2c19": 0.4
+          },
+          "mw": 270.71
+        },
+        "metabolites": [
+          {
+            "key": "nordiazepam",
+            "name": "Nordiazepam",
+            "fm": 0.65,
+            "t12": 70,
+            "vd": 1,
+            "color": "#e8590c",
+            "pathways": {
+              "cyp3a4": 0.6,
+              "cyp2c19": 0.4
+            },
+            "parent": "parent",
+            "mw": 270.71
+          },
+          {
+            "key": "temazepam",
+            "name": "Temazepam",
+            "fm": 0.15,
+            "t12": 11,
+            "vd": 1.1,
+            "color": "#7950f2",
+            "pathways": {
+              "cyp3a4": 1
+            },
+            "parent": "parent",
+            "mw": 300.74
+          },
+          {
+            "key": "oxazepam",
+            "name": "Oxazepam",
+            "fmFromNord": 0.5,
+            "fmFromTem": 0.05,
+            "t12": 8,
+            "vd": 0.8,
+            "color": "#2b8a3e",
+            "pathways": {
+              "ugt": 1
+            },
+            "parent": "secondary",
+            "mw": 286.71
+          }
+        ],
+        "rt": {
+          "rectal": {
+            "F": 0.9,
+            "ka": 3.6
+          },
+          "nasal": {
+            "F": 0.95,
+            "ka": 1.5
+          }
+        }
+      }
+    },
+    "alprazolam": {
+      "name": "Alprazolam",
+      "brand": "Xanax",
+      "color": "#1C7ED6",
+      "role": "PAM · IA",
+      "roleColor": "#1C7ED6",
+      "routes": [
+        "oral",
+        "sl"
+      ],
+      "defaultRoute": "oral",
+      "use": "Anxiety and panic disorder",
+      "mw": 308.8,
+      "smiles": "CC1=NN=C2N1C3=C(C=C(C=C3)Cl)C(=NC2)C4=CC=CC=C4",
+      "pd": {
+        "kind": "PAM",
+        "emax": 3,
+        "ki": {
+          "a1": 0.8,
+          "a2": 0.6,
+          "a3": 1.4,
+          "a5": 0.5,
+          "a4": null,
+          "a6": null
+        }
+      },
+      "pk": {
+        "F": 0.9,
+        "ka": 2.5,
+        "t12": 11,
+        "vd": 0.8,
+        "fu": 0.2,
+        "lipophilic": false,
+        "highFirstPass": false,
+        "pathways": {
+          "cyp3a4": 1
+        },
+        "dose": 0.5,
+        "tau": 8,
+        "ref": [
+          10,
+          40
+        ],
+        "rt": {
+          "sl": {
+            "F": 0.92,
+            "ka": 2.2
+          }
+        }
+      }
+    },
+    "lorazepam": {
+      "name": "Lorazepam",
+      "brand": "Ativan",
+      "color": "#0CA678",
+      "role": "PAM · IA",
+      "roleColor": "#0CA678",
+      "routes": [
+        "oral",
+        "sl",
+        "im",
+        "iv"
+      ],
+      "defaultRoute": "oral",
+      "use": "Anxiety, status epilepticus, pre-medication",
+      "mw": 321.2,
+      "smiles": "C1=CC=C(C(=C1)C2=NC(C(=O)NC3=C2C=C(C=C3)Cl)O)Cl",
+      "pd": {
+        "kind": "PAM",
+        "emax": 3.2,
+        "ki": {
+          "a1": 3,
+          "a2": 3,
+          "a3": 4,
+          "a5": 2,
+          "a4": null,
+          "a6": null
+        }
+      },
+      "pk": {
+        "F": 0.9,
+        "ka": 1.8,
+        "t12": 12,
+        "vd": 1.3,
+        "fu": 0.15,
+        "lipophilic": false,
+        "highFirstPass": false,
+        "pathways": {
+          "ugt": 1
+        },
+        "dose": 1,
+        "tau": 8,
+        "ref": [
+          50,
+          240
+        ],
+        "im": {
+          "F": 0.92,
+          "ka": 2.9
+        },
+        "rt": {
+          "sl": {
+            "F": 0.94,
+            "ka": 1.8
+          }
+        }
+      }
+    },
+    "clonazepam": {
+      "name": "Clonazepam",
+      "brand": "Klonopin",
+      "color": "#E8590C",
+      "role": "PAM · LA",
+      "roleColor": "#E8590C",
+      "routes": [
+        "oral",
+        "iv"
+      ],
+      "defaultRoute": "oral",
+      "use": "Seizure disorders, panic disorder",
+      "mw": 315.7,
+      "smiles": "C1C(=O)NC2=C(C=C(C=C2)[N+](=O)[O-])C(=N1)C3=CC=CC=C3Cl",
+      "pd": {
+        "kind": "PAM",
+        "emax": 3,
+        "ki": {
+          "a1": 1.3,
+          "a2": 1.7,
+          "a3": 2,
+          "a5": 0.9,
+          "a4": null,
+          "a6": null
+        }
+      },
+      "pk": {
+        "F": 0.9,
+        "ka": 3.0,
+        "t12": 35,
+        "vd": 2.6,
+        "fu": 0.15,
+        "lipophilic": true,
+        "highFirstPass": false,
+        "pathways": {
+          "cyp3a4": 0.8,
+          "other": 0.2
+        },
+        "dose": 0.5,
+        "tau": 12,
+        "ref": [
+          20,
+          70
+        ]
+      }
+    },
+    "midazolam": {
+      "name": "Midazolam",
+      "brand": "generic; Nayzilam (nasal)",
+      "color": "#D6336C",
+      "role": "PAM · SA",
+      "roleColor": "#D6336C",
+      "routes": [
+        "oral",
+        "buccal",
+        "nasal",
+        "im",
+        "iv"
+      ],
+      "defaultRoute": "oral",
+      "use": "Procedural sedation, anaesthesia induction, status epilepticus",
+      "mw": 325.8,
+      "smiles": "CC1=NC=C2N1C3=C(C=C(C=C3)Cl)C(=NC2)C4=CC=CC=C4F",
+      "pd": {
+        "kind": "PAM",
+        "emax": 3,
+        "ki": {
+          "a1": 4,
+          "a2": 5,
+          "a3": 5,
+          "a5": 3,
+          "a4": null,
+          "a6": null
+        }
+      },
+      "pk": {
+        "F": 0.4,
+        "ka": 3,
+        "t12": 2.5,
+        "vd": 1.1,
+        "fu": 0.03,
+        "lipophilic": true,
+        "highFirstPass": true,
+        "pathways": {
+          "cyp3a4": 1
+        },
+        "dose": 7.5,
+        "tau": 24,
+        "ref": [
+          40,
+          100
+        ],
+        "im": {
+          "F": 0.9,
+          "ka": 6.6
+        },
+        "metabolite": {
+          "name": "1′-Hydroxymidazolam",
+          "fm": 0.7,
+          "t12": 1,
+          "vd": 0.8,
+          "pathways": {
+            "ugt": 1
+          },
+          "mw": 341.8
+        },
+        "metabolites": [
+          {
+            "key": "1-oh-midazolam",
+            "name": "1′-Hydroxymidazolam",
+            "fm": 0.7,
+            "t12": 1,
+            "vd": 0.8,
+            "color": "#e8590c",
+            "pathways": {
+              "ugt": 1
+            },
+            "parent": "parent",
+            "mw": 341.8
+          }
+        ],
+        "rt": {
+          "nasal": {
+            "F": 0.5,
+            "ka": 13.7
+          },
+          "buccal": {
+            "F": 0.75,
+            "ka": 3.5
+          }
+        }
+      }
+    },
+    "oxazepam": {
+      "name": "Oxazepam",
+      "brand": "generic",
+      "color": "#2F9E44",
+      "role": "PAM · SA-IA",
+      "roleColor": "#2F9E44",
+      "routes": [
+        "oral"
+      ],
+      "defaultRoute": "oral",
+      "use": "Anxiety, alcohol withdrawal (liver disease)",
+      "mw": 286.7,
+      "smiles": "C1=CC=C(C=C1)C2=NC(C(=O)NC3=C2C=C(C=C3)Cl)O",
+      "pd": {
+        "kind": "PAM",
+        "emax": 2.6,
+        "ki": {
+          "a1": 40,
+          "a2": 45,
+          "a3": 50,
+          "a5": 35,
+          "a4": null,
+          "a6": null
+        }
+      },
+      "pk": {
+        "F": 0.93,
+        "ka": 0.8,
+        "t12": 8,
+        "vd": 0.8,
+        "fu": 0.04,
+        "lipophilic": false,
+        "highFirstPass": false,
+        "pathways": {
+          "ugt": 1
+        },
+        "dose": 15,
+        "tau": 8,
+        "ref": [
+          200,
+          1500
+        ]
+      }
+    },
+    "triazolam": {
+      "name": "Triazolam",
+      "brand": "Halcion",
+      "color": "#AE3EC9",
+      "role": "PAM · USA",
+      "roleColor": "#AE3EC9",
+      "routes": [
+        "oral",
+        "sl"
+      ],
+      "defaultRoute": "oral",
+      "use": "Short-term insomnia",
+      "mw": 343.2,
+      "smiles": "CC1=NN=C2N1C3=C(C=C(C=C3)Cl)C(=NC2)C4=CC=CC=C4Cl",
+      "pd": {
+        "kind": "PAM",
+        "emax": 3.2,
+        "ki": {
+          "a1": 0.8,
+          "a2": 0.6,
+          "a3": 1.4,
+          "a5": 1.5,
+          "a4": null,
+          "a6": null
+        }
+      },
+      "pk": {
+        "F": 0.5,
+        "ka": 2.5,
+        "t12": 2.5,
+        "vd": 0.7,
+        "fu": 0.15,
+        "lipophilic": true,
+        "highFirstPass": true,
+        "pathways": {
+          "cyp3a4": 1
+        },
+        "dose": 0.25,
+        "tau": 24,
+        "ref": [
+          2,
+          20
+        ],
+        "rt": {
+          "sl": {
+            "F": 0.53,
+            "ka": 3
+          }
+        }
+      }
+    },
+    "zolpidem": {
+      "name": "Zolpidem",
+      "brand": "Ambien",
+      "color": "#F06595",
+      "role": "α1-preferring PAM (Z-drug)",
+      "roleColor": "#F06595",
+      "routes": [
+        "oral",
+        "sl"
+      ],
+      "defaultRoute": "oral",
+      "use": "Insomnia (non-benzodiazepine \"Z-drug\")",
+      "mw": 307.4,
+      "smiles": "CC1=CC=C(C=C1)C2=C(N3C=C(C=CC3=N2)C)CC(=O)N(C)C",
+      "pd": {
+        "kind": "PAM",
+        "emax": 2.8,
+        "ki": {
+          "a1": 27,
+          "a2": 160,
+          "a3": 380,
+          "a5": 15000,
+          "a4": null,
+          "a6": null
+        }
+      },
+      "pk": {
+        "F": 0.7,
+        "ka": 1.2,
+        "t12": 2.5,
+        "vd": 0.54,
+        "fu": 0.08,
+        "lipophilic": false,
+        "highFirstPass": false,
+        "pathways": {
+          "cyp3a4": 0.6,
+          "other": 0.4
+        },
+        "dose": 10,
+        "tau": 24,
+        "ref": [
+          80,
+          200
+        ],
+        "rt": {
+          "sl": {
+            "F": 0.7,
+            "ka": 3
+          }
+        }
+      }
+    },
+    "zopiclone": {
+      "name": "Zopiclone",
+      "brand": "not marketed (eszopiclone: Lunesta)",
+      "color": "#9C36B5",
+      "role": "PAM (Z-drug)",
+      "roleColor": "#9C36B5",
+      "routes": [
+        "oral"
+      ],
+      "defaultRoute": "oral",
+      "use": "Insomnia (cyclopyrrolone \"Z-drug\"; binds α1/2/3/5 without zolpidem-like α1 preference)",
+      "mw": 388.8,
+      "smiles": "CN1CCN(CC1)C(=O)OC2C3=NC=CN=C3C(=O)N2C4=NC=C(C=C4)Cl",
+      "pd": {
+        "kind": "PAM",
+        "emax": 2.8,
+        "ki": {
+          "a1": 30,
+          "a2": 35,
+          "a3": 30,
+          "a5": 45,
+          "a4": null,
+          "a6": null
+        }
+      },
+      "pk": {
+        "F": 0.77,
+        "ka": 2,
+        "t12": 5.5,
+        "vd": 1.4,
+        "fu": 0.55,
+        "lipophilic": false,
+        "highFirstPass": false,
+        "pathways": {
+          "cyp3a4": 0.7,
+          "other": 0.3
+        },
+        "dose": 7.5,
+        "tau": 24,
+        "ref": [
+          10,
+          60
+        ]
+      }
+    },
+    "bretazenil": {
+      "name": "Bretazenil",
+      "brand": "Ro 16-6028",
+      "color": "#74B816",
+      "role": "Partial agonist (PAM)",
+      "roleColor": "#74B816",
+      "routes": [
+        "oral"
+      ],
+      "defaultRoute": "oral",
+      "use": "High-affinity imidazopyrrolobenzodiazepine partial agonist - lower ceiling effect & reduced dependence",
+      "mw": 418.3,
+      "smiles": "CC(C)(C)OC(=O)C1=C2[C@@H]3CCCN3C(=O)C4=C(N2C=N1)C=CC=C4Br",
+      "pd": {
+        "kind": "Partial PAM",
+        "emax": 1.6,
+        "ki": {
+          "a1": 0.35,
+          "a2": 0.64,
+          "a3": 0.2,
+          "a5": 0.5,
+          "a4": 30,
+          "a6": 13
+        }
+      },
+      "pk": {
+        "F": 0.7,
+        "ka": 2,
+        "t12": 2.5,
+        "vd": 1.1,
+        "fu": 0.15,
+        "lipophilic": true,
+        "highFirstPass": false,
+        "pathways": {
+          "ugt": 0.85,
+          "other": 0.15
+        },
+        "dose": 0.5,
+        "tau": 8,
+        "ref": [
+          10,
+          40
+        ]
+      }
+    },
+    "flumazenil": {
+      "name": "Flumazenil",
+      "brand": "generic",
+      "color": "#FA5252",
+      "role": "Neutral antagonist",
+      "roleColor": "#FA5252",
+      "routes": [
+        "iv"
+      ],
+      "defaultRoute": "iv",
+      "use": "Reversal of BZD sedation / overdose (IV)",
+      "mw": 303.3,
+      "smiles": "CCOC(=O)C1=C2CN(C(=O)C3=C(N2C=N1)C=CC(=C3)F)C",
+      "pd": {
+        "kind": "Antagonist",
+        "emax": 1,
+        "ki": {
+          "a1": 1,
+          "a2": 1,
+          "a3": 1,
+          "a5": 0.5,
+          "a4": 150,
+          "a6": 150
+        }
+      },
+      "pk": {
+        "F": 0.16,
+        "ka": 2,
+        "t12": 0.9,
+        "vd": 1,
+        "fu": 0.5,
+        "lipophilic": false,
+        "highFirstPass": true,
+        "pathways": {
+          "other": 1
+        },
+        "dose": 0.5,
+        "tau": 1,
+        "ref": null,
+        "defaultRoute": "iv"
+      }
+    },
+    "dmcm": {
+      "name": "DMCM",
+      "brand": "(research tool)",
+      "color": "#495057",
+      "role": "Inverse agonist (NAM)",
+      "roleColor": "#495057",
+      "use": "β-carboline; anxiogenic & proconvulsant - reduces GABA affinity",
+      "mw": 314.3,
+      "smiles": "CCC1=C(N=CC2=C1C3=CC(=C(C=C3N2)OC)OC)C(=O)OC",
+      "pd": {
+        "kind": "Inverse agonist",
+        "emax": 0.45,
+        "ki": {
+          "a1": 3,
+          "a2": 5,
+          "a3": 4,
+          "a5": 3,
+          "a4": null,
+          "a6": null
+        }
+      },
+      "pk": null
+    }
+  },
+  "gaba": {
+    "name": "GABA",
+    "role": "Endogenous agonist",
+    "roleColor": "#E67700",
+    "smiles": "C(CC(=O)O)CN",
+    "use": "γ-aminobutyric acid · binds two orthosteric β+/α− sites and gates the Cl⁻ pore"
+  },
+  "routes": [
+    {
+      "id": "iv",
+      "name": "Intravenous (IV)",
+      "commonDrugs": "Diazepam, Lorazepam, Midazolam",
+      "primaryIndications": "Status epilepticus, acute procedural sedation, rapid induction of anaesthesia",
+      "advantages": "Immediate systemic bio-availability; exact dose titration possible",
+      "limitations": "High risk of respiratory depression, apnoea, hypotension, thrombophlebitis (diazepam vehicle)",
+      "badgeColor": "#e03131",
+      "onset": "1-5 min",
+      "onsetMin": 3,
+      "tmax": "Immediate (end of infusion)",
+      "bioavailability": "100% (Reference)"
+    },
+    {
+      "id": "nasal",
+      "name": "Intranasal (IN)",
+      "commonDrugs": "Midazolam nasal spray (Nayzilam), Diazepam nasal (Valtoco)",
+      "primaryIndications": "Out-of-hospital seizure clusters, acute agitation when IV line cannot be placed",
+      "advantages": "Rapid mucosal absorption directly entering systemic circulation; bypasses GI tract and first pass",
+      "limitations": "Nasal congestion/rhinitis may diminish absorption; nasal discomfort and stinging",
+      "badgeColor": "#f76707",
+      "onset": "5-15 min",
+      "onsetMin": 8,
+      "tmax": "10-15 min",
+      "bioavailability": "Midazolam ~45-55%; Diazepam nasal ~90%"
+    },
+    {
+      "id": "buccal",
+      "name": "Buccal",
+      "commonDrugs": "Midazolam buccal liquid (Buccolam, Epistatus)",
+      "primaryIndications": "Paediatric prolonged acute convulsive seizures (first-line in emergency protocols)",
+      "advantages": "Non-invasive mucosal delivery; simple for parents and caregivers to administer safely",
+      "limitations": "Portion may be swallowed into GI tract; active salivation/swallowing alters uptake",
+      "badgeColor": "#ae3ec9",
+      "onset": "5-10 min",
+      "onsetMin": 7,
+      "tmax": "15-30 min",
+      "bioavailability": "~50-70% (avoids swallowing / first-pass)"
+    },
+    {
+      "id": "rectal",
+      "name": "Rectal",
+      "commonDrugs": "Diazepam rectal gel",
+      "primaryIndications": "Paediatric emergency seizure rescue; febrile status epilepticus when IV unavailable",
+      "advantages": "Viable when patient is actively convulsing or unconscious with no venous access",
+      "limitations": "Social/privacy stigma in older patients; variable absorption depending on rectal contents",
+      "badgeColor": "#d9480f",
+      "onset": "5-15 min",
+      "onsetMin": 10,
+      "tmax": "~1.5 h (therapeutic levels achieved earlier)",
+      "bioavailability": "~90% relative to oral (variable)"
+    },
+    {
+      "id": "sl",
+      "name": "Sublingual (SL)",
+      "commonDrugs": "Lorazepam, Alprazolam, Triazolam, Zolpidem (SL tablet)",
+      "primaryIndications": "Acute panic attacks, severe situational anxiety, anticipatory anxiety",
+      "advantages": "Faster onset than swallowed tablets; partially avoids hepatic first-pass extraction; no water needed",
+      "limitations": "Requires patient cooperation to hold under tongue without swallowing; dry mouth slows dissolution",
+      "badgeColor": "#2b8a3e",
+      "onset": "10-30 min",
+      "onsetMin": 18,
+      "tmax": "15-30 min",
+      "bioavailability": "High (partially bypasses hepatic first-pass)"
+    },
+    {
+      "id": "im",
+      "name": "Intramuscular (IM)",
+      "commonDrugs": "Midazolam, Lorazepam (Diazepam NOT recommended IM)",
+      "primaryIndications": "Severe behavioural agitation, pre-anaesthetic medication, acute psychiatric emergency",
+      "advantages": "Rapid and predictable absorption for water-soluble/propylene glycol formulations (Midazolam, Lorazepam)",
+      "limitations": "Diazepam precipitates in muscle tissue due to lipophilicity causing slow/erratic absorption and pain",
+      "badgeColor": "#1098ad",
+      "onset": "5-30 min",
+      "onsetMin": 15,
+      "tmax": "30-90 min",
+      "bioavailability": "Midazolam & Lorazepam > 90%; Diazepam erratic/poor"
+    },
+    {
+      "id": "oral",
+      "name": "Oral (PO)",
+      "commonDrugs": "Virtually all BZDs & Z-drugs (Diazepam, Lorazepam, Alprazolam, Clonazepam, etc.)",
+      "primaryIndications": "Generalised anxiety disorder, panic disorder, insomnia, spasticity, chronic maintenance",
+      "advantages": "Most convenient for self-administration and chronic outpatient therapy; non-invasive",
+      "limitations": "Delayed onset; influenced by gastric emptying and food; substantial first-pass for midazolam/triazolam",
+      "badgeColor": "#1971c2",
+      "onset": "15-60 min",
+      "onsetMin": 35,
+      "tmax": "Typically 0.5-2 h",
+      "bioavailability": "Diazepam or Lorazepam or Clonazepam > 85-90%; Midazolam ~40%; Triazolam ~50%"
+    }
+  ],
+  "drugRoutes": {
+    "diazepam": {
+      "oral": {
+        "speed": "Rapid for an oral agent",
+        "ind": "Anxiety, alcohol withdrawal and muscle spasm; adjunct in seizure disorders",
+        "adv": "Rapid and near-complete oral absorption (F ≈ 95%); long duration through nordiazepam allows once-daily dosing and smooth tapering",
+        "caut": "Nordiazepam accumulates with repeated dosing (t½ up to 200 h), particularly in older adults, in hepatic impairment and with CYP2C19 or CYP3A4 inhibitors",
+        "onset": "15-60 min",
+        "tmax": "0.5-1.5 h"
+      },
+      "rectal": {
+        "speed": "Rapid (rescue use)",
+        "ind": "Acute repetitive or prolonged seizures out of hospital, particularly in children, when IV access is unavailable",
+        "adv": "Can be given by trained caregivers; high bioavailability (≈ 90%)",
+        "caut": "Variable absorption; respiratory depression with repeated doses; less acceptable than buccal or intranasal routes in older children and adults",
+        "onset": "5-15 min",
+        "tmax": "≈ 1.5 h (therapeutic levels earlier)"
+      },
+      "nasal": {
+        "speed": "Rapid (rescue use)",
+        "ind": "Intermittent seizure clusters (acute repetitive seizures) in epilepsy",
+        "adv": "Easy caregiver administration with high bioavailability of the nasal formulation; avoids rectal use",
+        "caut": "Nasal discomfort and dysgeusia; respiratory depression, particularly with opioids or other CNS depressants",
+        "onset": "≈ 10-15 min",
+        "tmax": "≈ 1.5 h"
+      },
+      "im": {
+        "speed": "Slow and erratic",
+        "ind": "Not recommended; reserve for situations in which no other route is available",
+        "adv": "None over alternatives: IM midazolam or IM lorazepam is preferred",
+        "caut": "Slow and erratic absorption because of poor aqueous solubility; injection-site pain",
+        "onset": "Slow and erratic",
+        "tmax": "Variable (often ≥ 1 h)"
+      },
+      "iv": {
+        "speed": "Very rapid",
+        "ind": "Status epilepticus, severe alcohol withdrawal and procedural sedation",
+        "adv": "Onset within minutes owing to high lipid solubility and rapid brain uptake",
+        "caut": "Short anticonvulsant effect because of redistribution, with risk of seizure recurrence; respiratory depression and hypotension; thrombophlebitis from the propylene glycol vehicle",
+        "onset": "1-5 min",
+        "tmax": "End of injection"
+      }
+    },
+    "alprazolam": {
+      "oral": {
+        "speed": "Rapid for an oral agent",
+        "ind": "Panic disorder; short-term treatment of generalised anxiety disorder",
+        "adv": "Rapid absorption with prompt anxiolysis",
+        "caut": "Interdose rebound anxiety and high dependence and withdrawal risk; CYP3A4 inhibitors increase exposure",
+        "onset": "20-60 min",
+        "tmax": "1-2 h"
+      },
+      "sl": {
+        "speed": "Rapid",
+        "ind": "Acute panic or situational anxiety",
+        "adv": "Taken without water; partial avoidance of first-pass metabolism and slightly faster absorption",
+        "caut": "Same dependence and withdrawal risks as oral alprazolam; sublingual use is off-label in many countries",
+        "onset": "15-30 min",
+        "tmax": "≈ 1 h"
+      }
+    },
+    "lorazepam": {
+      "oral": {
+        "speed": "Intermediate",
+        "ind": "Short-term treatment of anxiety, insomnia associated with anxiety, and premedication",
+        "adv": "No active metabolites; direct glucuronidation is preserved in hepatic impairment and in older adults",
+        "caut": "Slower oral peak (≈ 2 h) than diazepam; anterograde amnesia; dependence with prolonged use",
+        "onset": "30-60 min",
+        "tmax": "≈ 2 h"
+      },
+      "sl": {
+        "speed": "Rapid",
+        "ind": "Acute anxiety or panic attacks; premedication",
+        "adv": "High bioavailability (≈ 94%) with an earlier peak than oral tablets; no swallowing required",
+        "caut": "Requires patient cooperation; onset slower than intranasal or buccal midazolam",
+        "onset": "15-30 min",
+        "tmax": "≈ 1 h"
+      },
+      "im": {
+        "speed": "Rapid",
+        "ind": "Status epilepticus or acute agitation when IV access is unavailable; premedication",
+        "adv": "Reliable intramuscular absorption (F ≈ 92%)",
+        "caut": "Slower peak than IM midazolam, which is generally preferred for seizures without IV access",
+        "onset": "15-30 min",
+        "tmax": "1-3 h"
+      },
+      "iv": {
+        "speed": "Very rapid",
+        "ind": "First-line treatment of status epilepticus; acute agitation; alcohol withdrawal",
+        "adv": "Longer anticonvulsant effect than IV diazepam (less redistribution), reducing seizure recurrence",
+        "caut": "Respiratory depression and hypotension; propylene glycol toxicity with high-dose or prolonged infusion; requires refrigeration",
+        "onset": "2-5 min",
+        "tmax": "End of injection"
+      }
+    },
+    "clonazepam": {
+      "oral": {
+        "speed": "Intermediate",
+        "ind": "Seizure disorders (absence, myoclonic, Lennox-Gastaut syndrome); panic disorder",
+        "adv": "Long half-life (30-40 h) allows once- or twice-daily dosing",
+        "caut": "Tolerance to the anticonvulsant effect; sedation and accumulation; hypersalivation in children",
+        "onset": "20-60 min",
+        "tmax": "1-4 h"
+      },
+      "iv": {
+        "speed": "Very rapid",
+        "ind": "Status epilepticus where an IV formulation is available",
+        "adv": "Potent, with a longer anticonvulsant effect than IV diazepam",
+        "caut": "Respiratory depression and hypotension; not available in all countries (e.g. not in the USA)",
+        "onset": "Within minutes",
+        "tmax": "End of injection"
+      }
+    },
+    "midazolam": {
+      "oral": {
+        "speed": "Rapid for an oral agent",
+        "ind": "Premedication and procedural sedation, particularly in children (oral solution)",
+        "adv": "Rapid onset and short duration (t½ 1.5-3 h)",
+        "caut": "Low and variable bioavailability (≈ 40%) from CYP3A4 first-pass metabolism; large increases with CYP3A4 inhibitors and in hepatic impairment",
+        "onset": "10-30 min",
+        "tmax": "0.5-1 h"
+      },
+      "buccal": {
+        "speed": "Rapid (rescue use)",
+        "ind": "Prolonged acute convulsive seizures in infants, children and adolescents",
+        "adv": "First-line out-of-hospital rescue: easy caregiver administration, more acceptable and at least as effective as rectal diazepam",
+        "caut": "Part of the dose may be swallowed, reducing the effect; respiratory depression, particularly with repeated doses",
+        "onset": "5-10 min",
+        "tmax": "≈ 30 min"
+      },
+      "nasal": {
+        "speed": "Rapid (rescue use)",
+        "ind": "Intermittent seizure clusters in patients aged 12 years and older",
+        "adv": "Rapid absorption and caregiver administration",
+        "caut": "Nasal discomfort, rhinorrhoea and dysgeusia; bioavailability ≈ 45-55%; respiratory depression",
+        "onset": "5-10 min",
+        "tmax": "≈ 15-20 min"
+      },
+      "im": {
+        "speed": "Rapid (rescue use)",
+        "ind": "Status epilepticus without IV access (pre-hospital first line); acute agitation; premedication",
+        "adv": "Water-soluble at acidic pH, giving rapid and reliable IM absorption; at least as effective as IV lorazepam before hospital arrival (RAMPART trial)",
+        "caut": "Respiratory depression, particularly in older adults or with other CNS depressants",
+        "onset": "5-15 min",
+        "tmax": "≈ 30 min"
+      },
+      "iv": {
+        "speed": "Very rapid",
+        "ind": "Procedural sedation, induction of anaesthesia, ICU sedation; continuous infusion in refractory status epilepticus",
+        "adv": "Rapid onset and offset; readily titrated",
+        "caut": "Apnoea, respiratory depression and hypotension; accumulation of the active glucuronide in renal impairment and with prolonged infusion",
+        "onset": "2-5 min",
+        "tmax": "End of injection"
+      }
+    },
+    "oxazepam": {
+      "oral": {
+        "speed": "Slow",
+        "ind": "Anxiety; alcohol withdrawal, particularly in hepatic impairment",
+        "adv": "No active metabolites; direct glucuronidation is largely preserved in liver disease and in older adults",
+        "caut": "Slow absorption makes it unsuitable for acute use; dosing three to four times daily",
+        "onset": "45-90 min",
+        "tmax": "2-4 h"
+      }
+    },
+    "triazolam": {
+      "oral": {
+        "speed": "Rapid for an oral agent",
+        "ind": "Short-term treatment of insomnia (sleep onset)",
+        "adv": "Rapid onset and short duration with little next-day residual effect",
+        "caut": "Rebound insomnia, anterograde amnesia and next-day anxiety; contraindicated with strong CYP3A4 inhibitors (e.g. ketoconazole, itraconazole)",
+        "onset": "15-30 min",
+        "tmax": "1-2 h"
+      },
+      "sl": {
+        "speed": "Rapid",
+        "ind": "Procedural or dental anxiolysis (off-label sublingual use)",
+        "adv": "Higher bioavailability and faster onset than oral tablets by partially avoiding first-pass metabolism",
+        "caut": "Off-label use; requires monitoring, particularly in combination with other sedatives",
+        "onset": "10-20 min",
+        "tmax": "≈ 1 h"
+      }
+    },
+    "zolpidem": {
+      "oral": {
+        "speed": "Rapid for an oral agent",
+        "ind": "Short-term treatment of insomnia (sleep onset)",
+        "adv": "Rapid onset and short half-life (2-3 h); less myorelaxation than BZDs at therapeutic doses",
+        "caut": "FDA boxed warning (2019) for complex sleep behaviours; next-morning impairment (lower doses for women); dependence",
+        "onset": "15-30 min",
+        "tmax": "≈ 1.5 h"
+      },
+      "sl": {
+        "speed": "Rapid",
+        "ind": "Sleep-onset insomnia, and middle-of-the-night awakening (low-dose sublingual tablets)",
+        "adv": "Faster absorption than the oral tablet",
+        "caut": "Take low-dose tablets only when at least 4 h remain in bed; complex sleep behaviours (FDA boxed warning)",
+        "onset": "10-20 min",
+        "tmax": "0.5-1.5 h"
+      }
+    },
+    "zopiclone": {
+      "oral": {
+        "speed": "Rapid for an oral agent",
+        "ind": "Short-term treatment of insomnia (sleep onset and maintenance)",
+        "adv": "Improves sleep onset and maintenance, with a moderate half-life (5-6 h)",
+        "caut": "Bitter metallic taste; next-day impairment; complex sleep behaviours (FDA boxed warning for eszopiclone); dependence",
+        "onset": "15-30 min",
+        "tmax": "1.5-2 h"
+      }
+    },
+    "bretazenil": {
+      "oral": {
+        "speed": "Not established",
+        "ind": "None approved; investigated as an anxiolytic and anticonvulsant",
+        "adv": "Partial agonist with a lower ceiling effect, expected to cause less sedation and dependence",
+        "caut": "Not marketed; clinical development was discontinued",
+        "onset": "Not established",
+        "tmax": "Not established"
+      }
+    },
+    "flumazenil": {
+      "iv": {
+        "speed": "Very rapid",
+        "ind": "Reversal of benzodiazepine sedation after procedures; selected cases of isolated benzodiazepine overdose",
+        "adv": "Reverses benzodiazepine effects within minutes",
+        "caut": "Short half-life (≈ 1 h) with risk of resedation; can precipitate seizures in benzodiazepine-dependent patients or with tricyclic co-ingestion; not for routine use in undifferentiated overdose",
+        "onset": "1-2 min",
+        "tmax": "End of injection (peak effect 6-10 min)"
+      }
+    }
+  },
+  "pathways": [
+    {
+      "id": "diazepam-cascade",
+      "name": "Diazepam: multi-branch metabolic cascade",
+      "note": "Multiple active metabolites with very long elimination half-lives lead to pronounced cumulative effects during chronic dosing.",
+      "steps": [
+        {
+          "compound": "Diazepam",
+          "tHalf": "20-50 h",
+          "enzyme": "CYP2C19 / 3A4",
+          "reaction": "N-demethylation",
+          "enzClass": "cyp2c19",
+          "status": "active"
+        },
+        {
+          "compound": "Nordiazepam",
+          "tHalf": "36-200 h",
+          "enzyme": "CYP3A4 / 2C19",
+          "reaction": "3-hydroxylation",
+          "enzClass": "cyp3a4",
+          "status": "active"
+        },
+        {
+          "compound": "Oxazepam",
+          "tHalf": "4-15 h",
+          "enzyme": "UGT2B15",
+          "reaction": "Glucuronidation",
+          "enzClass": "ugt",
+          "status": "active"
+        },
+        {
+          "compound": "Oxazepam glucuronide",
+          "tHalf": null,
+          "enzyme": "Renal",
+          "reaction": "Excretion",
+          "enzClass": "other",
+          "status": "excreted"
+        }
+      ]
+    },
+    {
+      "id": "lot-pathway",
+      "name": "Direct glucuronidation (LOT benzodiazepines)",
+      "note": "Lorazepam, oxazepam and temazepam bypass phase I cytochrome P450 oxidation, which favours their use in older adults and in hepatic impairment.",
+      "steps": [
+        {
+          "compound": "Lorazepam",
+          "tHalf": "10-20 h",
+          "enzyme": "UGT2B7 / 2B15",
+          "reaction": "Direct glucuronidation",
+          "enzClass": "ugt",
+          "status": "active"
+        },
+        {
+          "compound": "Lorazepam glucuronide",
+          "tHalf": null,
+          "enzyme": "Renal",
+          "reaction": "Excretion",
+          "enzClass": "other",
+          "status": "excreted"
+        }
+      ]
+    },
+    {
+      "id": "midazolam-pathway",
+      "name": "Midazolam: rapid hydroxylation pathway",
+      "note": "Extensive intestinal and hepatic first-pass extraction (~60%) and rapid conversion to the short-lived active metabolite 1′-hydroxymidazolam.",
+      "steps": [
+        {
+          "compound": "Midazolam",
+          "tHalf": "1.5-3 h",
+          "enzyme": "CYP3A4 / 3A5",
+          "reaction": "1′-Hydroxylation",
+          "enzClass": "cyp3a4",
+          "status": "active"
+        },
+        {
+          "compound": "1′-Hydroxymidazolam",
+          "tHalf": "~1 h",
+          "enzyme": "UGT1A4 / 2B7",
+          "reaction": "Glucuronidation",
+          "enzClass": "ugt",
+          "status": "active"
+        },
+        {
+          "compound": "1′-Hydroxymidazolam glucuronide",
+          "tHalf": null,
+          "enzyme": "Renal",
+          "reaction": "Excretion",
+          "enzClass": "other",
+          "status": "excreted"
+        }
+      ]
+    }
+  ],
+  "modifiers": {
+    "cyp3a4_inh": {
+      "label": "CYP3A4 inhibitor",
+      "short": "CYP3A4 inh",
+      "desc": "e.g. ketoconazole, clarithromycin · reduces 3A4 clearance by 70%",
+      "m": {
+        "cyp3a4": 0.3
+      }
+    },
+    "cyp3a4_ind": {
+      "label": "CYP3A4 inducer",
+      "short": "CYP3A4 ind",
+      "desc": "e.g. rifampicin, carbamazepine · accelerates 3A4 clearance 2.5×",
+      "m": {
+        "cyp3a4": 2.5
+      }
+    },
+    "cyp2c19_pm": {
+      "label": "CYP2C19 poor metaboliser",
+      "short": "CYP2C19 PM",
+      "desc": "Common genetic polymorphism (~15-20% in Asian populations) · reduces diazepam clearance",
+      "m": {
+        "cyp2c19": 0.25
+      }
+    },
+    "elderly": {
+      "label": "Older adult (≥ 65 y)",
+      "short": "Age ≥ 65 y",
+      "desc": "Decreased Phase I hepatic oxidation (~40%) and expanded Vd for lipophilic drugs (+30%). Phase II UGT preserved.",
+      "m": {
+        "cyp3a4": 0.6,
+        "cyp2c19": 0.6,
+        "ugt": 0.95,
+        "other": 0.8
+      },
+      "vLipo": 1.3
+    },
+    "cirrhosis": {
+      "label": "Severe liver disease",
+      "short": "Cirrhosis",
+      "desc": "Shunting and loss of functional hepatocytes · Phase I heavily impaired (-70%), UGT moderately reduced (-35%). High-first-pass drugs show drastically increased bioavailability.",
+      "m": {
+        "cyp3a4": 0.3,
+        "cyp2c19": 0.3,
+        "ugt": 0.65,
+        "other": 0.4
+      }
+    }
+  },
+  "regions": {
+    "names": {
+      "ctx": "Cerebral cortex",
+      "ob": "Olfactory bulb",
+      "str": "Striatum",
+      "tha": "Thalamus",
+      "hyp": "Hypothalamus",
+      "amy": "Amygdala",
+      "hip": "Hippocampus",
+      "bs": "Brainstem",
+      "cb": "Cerebellum",
+      "sc": "Spinal cord"
+    },
+    "levels": [
+      "Absent or trace",
+      "Low",
+      "Moderate",
+      "High"
+    ],
+    "abundance": {
+      "a1": {
+        "ctx": {
+          "level": 3,
+          "note": "All layers; principal synaptic isoform"
+        },
+        "ob": {
+          "level": 3,
+          "note": "Mitral cells"
+        },
+        "str": {
+          "level": 1,
+          "note": "Low in caudate-putamen; high in globus pallidus"
+        },
+        "tha": {
+          "level": 3,
+          "note": "Relay nuclei (not the reticular nucleus)"
+        },
+        "hyp": {
+          "level": 2,
+          "note": ""
+        },
+        "amy": {
+          "level": 2,
+          "note": ""
+        },
+        "hip": {
+          "level": 2,
+          "note": "Interneurons; lower in principal cells"
+        },
+        "bs": {
+          "level": 2,
+          "note": ""
+        },
+        "cb": {
+          "level": 3,
+          "note": "Purkinje, stellate, basket and granule cells"
+        },
+        "sc": {
+          "level": 1,
+          "note": "Mainly ventral horn"
+        }
+      },
+      "a2": {
+        "ctx": {
+          "level": 2,
+          "note": "Superficial layers"
+        },
+        "ob": {
+          "level": 3,
+          "note": "Granule cells"
+        },
+        "str": {
+          "level": 3,
+          "note": "Caudate-putamen and nucleus accumbens"
+        },
+        "tha": {
+          "level": 1,
+          "note": ""
+        },
+        "hyp": {
+          "level": 3,
+          "note": ""
+        },
+        "amy": {
+          "level": 3,
+          "note": "Central and basolateral nuclei"
+        },
+        "hip": {
+          "level": 3,
+          "note": "Pyramidal cell axon initial segments; dentate gyrus"
+        },
+        "bs": {
+          "level": 1,
+          "note": ""
+        },
+        "cb": {
+          "level": 1,
+          "note": "Bergmann glia"
+        },
+        "sc": {
+          "level": 3,
+          "note": "Superficial dorsal horn (nociceptive processing)"
+        }
+      },
+      "a3": {
+        "ctx": {
+          "level": 2,
+          "note": "Deep layers"
+        },
+        "ob": {
+          "level": 2,
+          "note": ""
+        },
+        "str": {
+          "level": 1,
+          "note": ""
+        },
+        "tha": {
+          "level": 2,
+          "note": "Reticular nucleus only; absent from relay nuclei"
+        },
+        "hyp": {
+          "level": 2,
+          "note": ""
+        },
+        "amy": {
+          "level": 2,
+          "note": ""
+        },
+        "hip": {
+          "level": 1,
+          "note": ""
+        },
+        "bs": {
+          "level": 3,
+          "note": "Monoaminergic nuclei (raphe, locus coeruleus)"
+        },
+        "cb": {
+          "level": 0,
+          "note": ""
+        },
+        "sc": {
+          "level": 2,
+          "note": "Dorsal horn and motor neurons"
+        }
+      },
+      "a5": {
+        "ctx": {
+          "level": 1,
+          "note": "Deep layers"
+        },
+        "ob": {
+          "level": 2,
+          "note": ""
+        },
+        "str": {
+          "level": 1,
+          "note": "Ventral striatum"
+        },
+        "tha": {
+          "level": 0,
+          "note": ""
+        },
+        "hyp": {
+          "level": 2,
+          "note": ""
+        },
+        "amy": {
+          "level": 1,
+          "note": ""
+        },
+        "hip": {
+          "level": 3,
+          "note": "CA1-CA3 pyramidal cells; largely extrasynaptic"
+        },
+        "bs": {
+          "level": 1,
+          "note": ""
+        },
+        "cb": {
+          "level": 0,
+          "note": ""
+        },
+        "sc": {
+          "level": 1,
+          "note": ""
+        }
+      },
+      "a4": {
+        "ctx": {
+          "level": 1,
+          "note": ""
+        },
+        "ob": {
+          "level": 1,
+          "note": ""
+        },
+        "str": {
+          "level": 2,
+          "note": ""
+        },
+        "tha": {
+          "level": 3,
+          "note": "Relay nuclei, extrasynaptic with δ"
+        },
+        "hyp": {
+          "level": 0,
+          "note": ""
+        },
+        "amy": {
+          "level": 0,
+          "note": ""
+        },
+        "hip": {
+          "level": 2,
+          "note": "Dentate gyrus granule cells, with δ"
+        },
+        "bs": {
+          "level": 0,
+          "note": ""
+        },
+        "cb": {
+          "level": 0,
+          "note": ""
+        },
+        "sc": {
+          "level": 0,
+          "note": ""
+        }
+      },
+      "a6": {
+        "ctx": {
+          "level": 0,
+          "note": ""
+        },
+        "ob": {
+          "level": 0,
+          "note": ""
+        },
+        "str": {
+          "level": 0,
+          "note": ""
+        },
+        "tha": {
+          "level": 0,
+          "note": ""
+        },
+        "hyp": {
+          "level": 0,
+          "note": ""
+        },
+        "amy": {
+          "level": 0,
+          "note": ""
+        },
+        "hip": {
+          "level": 0,
+          "note": ""
+        },
+        "bs": {
+          "level": 1,
+          "note": "Cochlear nucleus"
+        },
+        "cb": {
+          "level": 3,
+          "note": "Granule cells, with δ (extrasynaptic)"
+        },
+        "sc": {
+          "level": 0,
+          "note": ""
+        }
+      }
+    }
+  },
+  "model": {
+    "hill": 1.5,
+    "singleChannel": {
+      "conductance_pS": 27,
+      "symmetricCl_mM": 140,
+      "clOut_mM": 130,
+      "clIn_mM": 8,
+      "clInImmature_mM": 30,
+      "vm_mV": -65,
+      "vmMin_mV": -90,
+      "vmMax_mV": -30,
+      "temperature_C": 37,
+      "hco3Out_mM": 26,
+      "hco3In_mM": 16,
+      "pHCO3_pCl": 0.25
+    },
+    "kinetics": {
+      "temperatureLow_C": 22,
+      "temperatureHigh_C": 23,
+      "rates": {
+        "kon": 7000000.0,
+        "koff": 170,
+        "k34": 710,
+        "k43": 58,
+        "alpha1": 3100,
+        "beta1": 50,
+        "alpha2": 280,
+        "beta2": 1800,
+        "alpha3": 150,
+        "beta3": 76,
+        "df": 960,
+        "rf": 22,
+        "di": 8.0,
+        "ri": 0.81,
+        "ds": 0.75,
+        "rs": 0.49,
+        "a12o": 5100,
+        "b12o": 630,
+        "a12c": 180,
+        "b12c": 70,
+        "a3o": 5100,
+        "b3o": 630,
+        "a3c": 90,
+        "b3c": 35
+      }
+    },
+    "ipsc": {
+      "amplitude_pA": 100,
+      "peakGaba_uM": 30,
+      "tauRise_ms": 0.6,
+      "tauFast_ms": 50,
+      "tauSlow_ms": 171,
+      "fastFraction": 0.64,
+      "decayShiftExponent": 0.37
+    },
+    "routeDefaults": {
+      "im": {
+        "F": 0.9,
+        "ka": 1.5
+      },
+      "nasal": {
+        "F": 0.6,
+        "ka": 3
+      },
+      "buccal": {
+        "F": 0.7,
+        "ka": 3
+      },
+      "rectal": {
+        "F": 0.8,
+        "ka": 1.5
+      },
+      "sl": {
+        "F": 0.8,
+        "ka": 2
+      }
+    },
+    "doseResponse": {
+      "gabaTone_uM": 5,
+      "subunit": "a1",
+      "concAt1xDose_xKi": 0.43,
+      "opioidEffect": 0.35,
+      "opioidSynergy": 1.6,
+      "opioidEffectMax": 0.97,
+      "barbiturate": {
+        "allostericHalfDose": 3,
+        "allostericGain": 4,
+        "directHalfDose": 40
+      },
+      "zones": [
+        {
+          "from": 15,
+          "to": 25,
+          "label": "Anxiolysis",
+          "color": "#e7f5ff"
+        },
+        {
+          "from": 25,
+          "to": 33,
+          "label": "Anticonvulsant · muscle relaxation",
+          "color": "#e6fcf5"
+        },
+        {
+          "from": 33,
+          "to": 42,
+          "label": "Sedation · ataxia",
+          "color": "#fff9db"
+        },
+        {
+          "from": 42,
+          "to": 55,
+          "label": "Hypnosis · anterograde amnesia",
+          "color": "#fff4e6"
+        },
+        {
+          "from": 65,
+          "to": 85,
+          "label": "General anaesthesia",
+          "color": "#ffe3e3"
+        },
+        {
+          "from": 85,
+          "to": 100,
+          "label": "Respiratory depression · coma",
+          "color": "#ffc9c9"
+        }
+      ]
+    },
+    "durationComparison": [
+      {
+        "key": "midazolam",
+        "dose": 7.5,
+        "label": "Midazolam (7.5 mg PO, short)"
+      },
+      {
+        "key": "alprazolam",
+        "dose": 0.5,
+        "label": "Alprazolam (0.5 mg PO, intermediate)"
+      },
+      {
+        "key": "lorazepam",
+        "dose": 1,
+        "label": "Lorazepam (1 mg PO, intermediate/LOT)"
+      },
+      {
+        "key": "oxazepam",
+        "dose": 15,
+        "label": "Oxazepam (15 mg PO, short-intermediate/LOT)"
+      },
+      {
+        "key": "clonazepam",
+        "dose": 0.5,
+        "label": "Clonazepam (0.5 mg PO, long)"
+      },
+      {
+        "key": "diazepam",
+        "dose": 10,
+        "label": "Diazepam (10 mg PO, long)"
+      }
+    ]
+  },
+  "substances": [
+    {
+      "name": "Diazepam",
+      "brand": "Valium",
+      "category": "Long-acting",
+      "tHalf": "20-50 h (parent)",
+      "tHalfNum": 43,
+      "metabolites": "Active: Nordiazepam (t½ 36-200 h), Temazepam, Oxazepam",
+      "bioavailability": "90-100% (IM slow and erratic)",
+      "clearance": "CYP2C19 & CYP3A4 → phase II UGT",
+      "equivDose": "10 mg (reference)",
+      "indications": "Anxiety, status epilepticus, muscle spasms, alcohol withdrawal (including acute agitation)",
+      "lot": false,
+      "schedule": "IV",
+      "color": "#1971C2",
+      "key": "diazepam"
+    },
+    {
+      "name": "Chlordiazepoxide",
+      "brand": "Librium",
+      "category": "Long-acting",
+      "tHalf": "5-30 h",
+      "tHalfNum": 24,
+      "metabolites": "Active: Desmethylchlordiazepoxide, Demoxepam, Nordiazepam",
+      "bioavailability": "100%",
+      "clearance": "CYP3A4 oxidation",
+      "equivDose": "25 mg",
+      "indications": "Acute alcohol withdrawal syndrome, anxiety",
+      "lot": false,
+      "schedule": "IV",
+      "color": "#1864AB",
+      "key": "chlordiazepoxide"
+    },
+    {
+      "name": "Clonazepam",
+      "brand": "Klonopin",
+      "category": "Long-acting",
+      "tHalf": "30-40 h",
+      "tHalfNum": 35,
+      "metabolites": "Inactive: 7-aminoclonazepam (via CYP3A4 / NAT2)",
+      "bioavailability": "~90%",
+      "clearance": "CYP3A4 nitro-reduction → NAT2 acetylation",
+      "equivDose": "0.5 mg",
+      "indications": "Seizure disorders (absence, myoclonic), panic disorder",
+      "lot": false,
+      "schedule": "IV",
+      "color": "#E8590C",
+      "key": "clonazepam"
+    },
+    {
+      "name": "Clobazam",
+      "brand": "Onfi, Sympazan",
+      "category": "Long-acting (1,5-BZD)",
+      "tHalf": "36-42 h",
+      "tHalfNum": 38,
+      "metabolites": "Active: N-desmethylclobazam (t½ 70-80 h, CYP2C19 substrate)",
+      "bioavailability": "87%",
+      "clearance": "CYP3A4 → CYP2C19 (N-desmethyl)",
+      "equivDose": "20 mg",
+      "indications": "Lennox-Gastaut syndrome, refractory focal epilepsy",
+      "lot": false,
+      "schedule": "IV",
+      "color": "#D9480F",
+      "key": "clobazam"
+    },
+    {
+      "name": "Lorazepam",
+      "brand": "Ativan",
+      "category": "Intermediate-acting",
+      "tHalf": "10-20 h",
+      "tHalfNum": 14,
+      "metabolites": "None (inactive glucuronide only)",
+      "bioavailability": "~90% (IM ~92%)",
+      "clearance": "Direct phase II glucuronidation (UGT2B15 / 2B7)",
+      "equivDose": "1 mg",
+      "indications": "Status epilepticus (IV), acute agitation (IM rapid tranquillisation), acute panic/anxiety, insomnia, alcohol withdrawal",
+      "lot": true,
+      "schedule": "IV",
+      "color": "#0CA678",
+      "key": "lorazepam"
+    },
+    {
+      "name": "Alprazolam",
+      "brand": "Xanax",
+      "category": "Intermediate-acting",
+      "tHalf": "11-15 h",
+      "tHalfNum": 12,
+      "metabolites": "Weakly active: α-hydroxyalprazolam",
+      "bioavailability": "80-90%",
+      "clearance": "CYP3A4 α- and 4-hydroxylation",
+      "equivDose": "0.5 mg",
+      "indications": "Panic disorder, generalised anxiety; high rebound and dependence potential",
+      "lot": false,
+      "schedule": "IV",
+      "color": "#1C7ED6",
+      "key": "alprazolam"
+    },
+    {
+      "name": "Temazepam",
+      "brand": "Restoril",
+      "category": "Intermediate-acting",
+      "tHalf": "8-20 h",
+      "tHalfNum": 11,
+      "metabolites": "Minor / negligible active (Oxazepam < 5%)",
+      "bioavailability": "~95%",
+      "clearance": "Direct phase II glucuronidation (UGT)",
+      "equivDose": "20 mg",
+      "indications": "Short-term treatment of insomnia (sleep maintenance)",
+      "lot": true,
+      "schedule": "IV",
+      "color": "#2F9E44",
+      "key": "temazepam"
+    },
+    {
+      "name": "Oxazepam",
+      "brand": "generic",
+      "category": "Short/Intermediate",
+      "tHalf": "4-15 h",
+      "tHalfNum": 8,
+      "metabolites": "None (direct inactive glucuronide)",
+      "bioavailability": "~93%",
+      "clearance": "Direct phase II glucuronidation (UGT2B15)",
+      "equivDose": "20 mg",
+      "indications": "Anxiety, alcohol withdrawal in patients with hepatic impairment",
+      "lot": true,
+      "schedule": "IV",
+      "color": "#2B8A3E",
+      "key": "oxazepam"
+    },
+    {
+      "name": "Midazolam",
+      "brand": "generic; Nayzilam (nasal)",
+      "category": "Short-acting",
+      "tHalf": "1.5-3 h",
+      "tHalfNum": 2.5,
+      "metabolites": "Active: 1′-hydroxymidazolam (t½ ~1 h, renally cleared)",
+      "bioavailability": "PO ~40% (high first pass); IM >90%; IN ~45-55%",
+      "clearance": "CYP3A4/5 1′-hydroxylation → UGT",
+      "equivDose": "Not established",
+      "indications": "Procedural sedation, anaesthesia induction, status epilepticus rescue, acute severe agitation (IM, off-label)",
+      "lot": false,
+      "schedule": "IV",
+      "color": "#D6336C",
+      "key": "midazolam"
+    },
+    {
+      "name": "Triazolam",
+      "brand": "Halcion",
+      "category": "Ultra-short-acting",
+      "tHalf": "1.5-5.5 h",
+      "tHalfNum": 2.5,
+      "metabolites": "Negligible active fraction",
+      "bioavailability": "~50% (sublingual ~55%)",
+      "clearance": "CYP3A4 α-hydroxylation",
+      "equivDose": "0.5 mg",
+      "indications": "Severe acute sleep-onset insomnia; dental conscious sedation",
+      "lot": false,
+      "schedule": "IV",
+      "color": "#AE3EC9",
+      "key": "triazolam"
+    },
+    {
+      "name": "Bretazenil",
+      "brand": "Ro 16-6028",
+      "category": "Partial PAM (Investigational)",
+      "tHalf": "2.5 h",
+      "tHalfNum": 2.5,
+      "metabolites": "Inactive glucuronide conjugates",
+      "bioavailability": "~70% (IM ~90%)",
+      "clearance": "Direct phase II glucuronidation (UGT)",
+      "equivDose": "Not established",
+      "indications": "Investigational anxiolytic & anticonvulsant with reduced sedation, ataxia, tolerance, and dependence liability",
+      "lot": false,
+      "schedule": "Investigational",
+      "color": "#74B816",
+      "key": "bretazenil"
+    },
+    {
+      "name": "Zolpidem",
+      "brand": "Ambien",
+      "category": "Z-drug (α1-preferring)",
+      "tHalf": "2-3 h",
+      "tHalfNum": 2.5,
+      "metabolites": "Inactive carboxylic acid derivatives",
+      "bioavailability": "~70%",
+      "clearance": "CYP3A4 (~60%), CYP2C9, CYP1A2",
+      "equivDose": "20 mg",
+      "indications": "Sleep-onset insomnia; less disruption of sleep architecture and less myorelaxation than BZDs at therapeutic doses",
+      "lot": false,
+      "schedule": "IV",
+      "color": "#F06595",
+      "key": "zolpidem"
+    },
+    {
+      "key": "zopiclone",
+      "name": "Zopiclone / Eszopiclone",
+      "brand": "Lunesta (eszopiclone)",
+      "category": "Z-drug (cyclopyrrolone)",
+      "tHalf": "5-6 h",
+      "tHalfNum": 5.5,
+      "metabolites": "Weakly active: zopiclone N-oxide / Inactive",
+      "bioavailability": "~80%",
+      "clearance": "CYP3A4 & CYP2E1 demethylation/oxidation",
+      "equivDose": "15 mg (zopiclone)",
+      "indications": "Insomnia (sleep onset and maintenance); bitter metallic dysgeusia common",
+      "lot": false,
+      "schedule": "IV",
+      "color": "#9C36B5"
+    },
+    {
+      "name": "Flumazenil",
+      "brand": "generic",
+      "category": "Competitive Antagonist",
+      "tHalf": "0.7-1.3 h (~1 h)",
+      "tHalfNum": 1,
+      "metabolites": "Inactive de-ethylated and carboxylic metabolites",
+      "bioavailability": "16% oral (administered IV only)",
+      "clearance": "Rapid hepatic carboxylesterase & CYP",
+      "equivDose": "0.2-0.5 mg IV titration",
+      "indications": "Reversal of conscious sedation / BZD overdose; risk of acute withdrawal seizures",
+      "lot": false,
+      "schedule": "Rx",
+      "color": "#FA5252",
+      "key": "flumazenil"
+    }
+  ],
+  "references": {
+    "greenblatt1980": {
+      "authors": "Greenblatt DJ, Allen MD, Harmatz JS, et al.",
+      "year": 1980,
+      "title": "Diazepam disposition determinants",
+      "journal": "Clin Pharmacol Ther",
+      "volume": "27",
+      "pages": "301-12",
+      "pmid": "7357789",
+      "doi": "10.1038/clpt.1980.40"
+    },
+    "mandelli1978": {
+      "authors": "Mandelli M, Tognoni G, Garattini S",
+      "year": 1978,
+      "title": "Clinical pharmacokinetics of diazepam",
+      "journal": "Clin Pharmacokinet",
+      "volume": "3",
+      "pages": "72-91",
+      "pmid": "346285",
+      "doi": "10.2165/00003088-197803010-00005"
+    },
+    "greenblatt1993": {
+      "authors": "Greenblatt DJ, Wright CE",
+      "year": 1993,
+      "title": "Clinical pharmacokinetics of alprazolam. Therapeutic implications",
+      "journal": "Clin Pharmacokinet",
+      "volume": "24",
+      "pages": "453-71",
+      "pmid": "8513649",
+      "doi": "10.2165/00003088-199324060-00003"
+    },
+    "greenblatt1981": {
+      "authors": "Greenblatt DJ",
+      "year": 1981,
+      "title": "Clinical pharmacokinetics of oxazepam and lorazepam",
+      "journal": "Clin Pharmacokinet",
+      "volume": "6",
+      "pages": "89-105",
+      "pmid": "6111408",
+      "doi": "10.2165/00003088-198106020-00001"
+    },
+    "greenblatt1979": {
+      "authors": "Greenblatt DJ, Allen MD, Locniskar A, et al.",
+      "year": 1979,
+      "title": "Lorazepam kinetics in the elderly",
+      "journal": "Clin Pharmacol Ther",
+      "volume": "26",
+      "pages": "103-13",
+      "pmid": "36252",
+      "doi": "10.1002/cpt1979261103"
+    },
+    "allonen1981": {
+      "authors": "Allonen H, Ziegler G, Klotz U",
+      "year": 1981,
+      "title": "Midazolam kinetics",
+      "journal": "Clin Pharmacol Ther",
+      "volume": "30",
+      "pages": "653-61",
+      "pmid": "6117393",
+      "doi": "10.1038/clpt.1981.217"
+    },
+    "heizmann1983": {
+      "authors": "Heizmann P, Eckert M, Ziegler WH",
+      "year": 1983,
+      "title": "Pharmacokinetics and bioavailability of midazolam in man",
+      "journal": "Br J Clin Pharmacol",
+      "volume": "16 Suppl 1",
+      "pages": "43S-49S",
+      "pmid": "6138080",
+      "doi": "10.1111/j.1365-2125.1983.tb02270.x"
+    },
+    "garzone1989": {
+      "authors": "Garzone PD, Kroboth PD",
+      "year": 1989,
+      "title": "Pharmacokinetics of the newer benzodiazepines",
+      "journal": "Clin Pharmacokinet",
+      "volume": "16",
+      "pages": "337-64",
+      "pmid": "2567646",
+      "doi": "10.2165/00003088-198916060-00002"
+    },
+    "salva1995": {
+      "authors": "Salvà P, Costa J",
+      "year": 1995,
+      "title": "Clinical pharmacokinetics and pharmacodynamics of zolpidem. Therapeutic implications",
+      "journal": "Clin Pharmacokinet",
+      "volume": "29",
+      "pages": "142-53",
+      "pmid": "8521677",
+      "doi": "10.2165/00003088-199529030-00002"
+    },
+    "fernandez1995": {
+      "authors": "Fernandez C, Martin C, Gimenez F, et al.",
+      "year": 1995,
+      "title": "Clinical pharmacokinetics of zopiclone",
+      "journal": "Clin Pharmacokinet",
+      "volume": "29",
+      "pages": "431-41",
+      "pmid": "8787948",
+      "doi": "10.2165/00003088-199529060-00004"
+    },
+    "klotz1988": {
+      "authors": "Klotz U, Kanto J",
+      "year": 1988,
+      "title": "Pharmacokinetics and clinical use of flumazenil (Ro 15-1788)",
+      "journal": "Clin Pharmacokinet",
+      "volume": "14",
+      "pages": "1-12",
+      "pmid": "3127102",
+      "doi": "10.2165/00003088-198814010-00001"
+    },
+    "crevoisier2003": {
+      "authors": "Crevoisier C, Delisle MC, Joseph I, et al.",
+      "year": 2003,
+      "title": "Comparative single-dose pharmacokinetics of clonazepam following intravenous, intramuscular and oral administration to healthy volunteers",
+      "journal": "Eur Neurol",
+      "volume": "49",
+      "pages": "173-7",
+      "pmid": "12646763",
+      "doi": "10.1159/000069089"
+    },
+    "greenblatt1987": {
+      "authors": "Greenblatt DJ, Miller LG, Shader RI",
+      "year": 1987,
+      "title": "Clonazepam pharmacokinetics, brain uptake, and receptor interactions",
+      "journal": "J Clin Psychiatry",
+      "volume": "48 Suppl",
+      "pages": "4-11",
+      "pmid": "2822672"
+    },
+    "knoester2002": {
+      "authors": "Knoester PD, Jonker DM, Van Der Hoeven RT, et al.",
+      "year": 2002,
+      "title": "Pharmacokinetics and pharmacodynamics of midazolam administered as a concentrated intranasal spray. A study in healthy volunteers",
+      "journal": "Br J Clin Pharmacol",
+      "volume": "53",
+      "pages": "501-7",
+      "pmid": "11994056",
+      "doi": "10.1046/j.1365-2125.2002.01588.x"
+    },
+    "kroboth1995": {
+      "authors": "Kroboth PD, McAuley JW, Kroboth FJ, et al.",
+      "year": 1995,
+      "title": "Triazolam pharmacokinetics after intravenous, oral, and sublingual administration",
+      "journal": "J Clin Psychopharmacol",
+      "volume": "15",
+      "pages": "259-62",
+      "pmid": "7593708",
+      "doi": "10.1097/00004714-199508000-00004"
+    },
+    "schulz2020": {
+      "authors": "Schulz M, Schmoldt A, Andresen-Streichert H, et al.",
+      "year": 2020,
+      "title": "Revisited: Therapeutic and toxic blood concentrations of more than 1100 drugs and other xenobiotics",
+      "journal": "Crit Care",
+      "volume": "24",
+      "pages": "195",
+      "pmid": "32375836",
+      "doi": "10.1186/s13054-020-02915-5"
+    },
+    "hiemke2018": {
+      "authors": "Hiemke C, Bergemann N, Clement HW, et al.",
+      "year": 2018,
+      "title": "Consensus Guidelines for Therapeutic Drug Monitoring in Neuropsychopharmacology: Update 2017",
+      "journal": "Pharmacopsychiatry",
+      "volume": "51",
+      "pages": "9-62",
+      "pmid": "28910830",
+      "doi": "10.1055/s-0043-116492"
+    },
+    "andersson1994": {
+      "authors": "Andersson T, Miners JO, Veronese ME, et al.",
+      "year": 1994,
+      "title": "Diazepam metabolism by human liver microsomes is mediated by both S-mephenytoin hydroxylase and CYP3A isoforms",
+      "journal": "Br J Clin Pharmacol",
+      "volume": "38",
+      "pages": "131-7",
+      "pmid": "7981013",
+      "doi": "10.1111/j.1365-2125.1994.tb04336.x"
+    },
+    "sieghart1995": {
+      "authors": "Sieghart W",
+      "year": 1995,
+      "title": "Structure and pharmacology of gamma-aminobutyric acidA receptor subtypes",
+      "journal": "Pharmacol Rev",
+      "volume": "47",
+      "pages": "181-234",
+      "pmid": "7568326"
+    },
+    "benson1998": {
+      "authors": "Benson JA, Löw K, Keist R, et al.",
+      "year": 1998,
+      "title": "Pharmacology of recombinant gamma-aminobutyric acidA receptors rendered diazepam-insensitive by point-mutated alpha-subunits",
+      "journal": "FEBS Lett",
+      "volume": "431",
+      "pages": "400-4",
+      "pmid": "9714551",
+      "doi": "10.1016/s0014-5793(98)00803-5"
+    },
+    "sanna2002": {
+      "authors": "Sanna E, Busonero F, Talani G, et al.",
+      "year": 2002,
+      "title": "Comparison of the effects of zaleplon, zolpidem, and triazolam at various GABA(A) receptor subtypes",
+      "journal": "Eur J Pharmacol",
+      "volume": "451",
+      "pages": "103-10",
+      "pmid": "12231378",
+      "doi": "10.1016/s0014-2999(02)02191-x"
+    },
+    "pritchett1990": {
+      "authors": "Pritchett DB, Seeburg PH",
+      "year": 1990,
+      "title": "Gamma-aminobutyric acidA receptor alpha 5-subunit creates novel type II benzodiazepine receptor pharmacology",
+      "journal": "J Neurochem",
+      "volume": "54",
+      "pages": "1802-4",
+      "pmid": "2157817",
+      "doi": "10.1111/j.1471-4159.1990.tb01237.x"
+    },
+    "wieland1992": {
+      "authors": "Wieland HA, Lüddens H, Seeburg PH",
+      "year": 1992,
+      "title": "A single histidine in GABAA receptors is essential for benzodiazepine agonist binding",
+      "journal": "J Biol Chem",
+      "volume": "267",
+      "pages": "1426-9",
+      "pmid": "1346133"
+    },
+    "hadingham1993": {
+      "authors": "Hadingham KL, Wingrove PB, Wafford KA, et al.",
+      "year": 1993,
+      "title": "Role of the beta subunit in determining the pharmacology of human gamma-aminobutyric acid type A receptors",
+      "journal": "Mol Pharmacol",
+      "volume": "44",
+      "pages": "1211-8",
+      "pmid": "8264558"
+    },
+    "puia1991": {
+      "authors": "Puia G, Vicini S, Seeburg PH, et al.",
+      "year": 1991,
+      "title": "Influence of recombinant gamma-aminobutyric acid-A receptor subunit composition on the action of allosteric modulators of gamma-aminobutyric acid-gated Cl- currents",
+      "journal": "Mol Pharmacol",
+      "volume": "39",
+      "pages": "691-6",
+      "pmid": "1646944"
+    },
+    "davies2000": {
+      "authors": "Davies M, Newell JG, Derry JM, et al.",
+      "year": 2000,
+      "title": "Characterization of the interaction of zopiclone with gamma-aminobutyric acid type A receptors",
+      "journal": "Mol Pharmacol",
+      "volume": "58",
+      "pages": "756-62",
+      "pmid": "10999945",
+      "doi": "10.1124/mol.58.4.756"
+    },
+    "braestrup1982": {
+      "authors": "Braestrup C, Schmiechen R, Neef G, et al.",
+      "year": 1982,
+      "title": "Interaction of convulsive ligands with benzodiazepine receptors",
+      "journal": "Science",
+      "volume": "216",
+      "pages": "1241-3",
+      "pmid": "6281892",
+      "doi": "10.1126/science.6281892"
+    },
+    "twyman1989": {
+      "authors": "Twyman RE, Rogers CJ, Macdonald RL",
+      "year": 1989,
+      "title": "Differential regulation of gamma-aminobutyric acid receptor channels by diazepam and phenobarbital",
+      "journal": "Ann Neurol",
+      "volume": "25",
+      "pages": "213-20",
+      "pmid": "2471436",
+      "doi": "10.1002/ana.410250302"
+    },
+    "rogers1994": {
+      "authors": "Rogers CJ, Twyman RE, Macdonald RL",
+      "year": 1994,
+      "title": "Benzodiazepine and beta-carboline regulation of single GABAA receptor channels of mouse spinal neurones in culture",
+      "journal": "J Physiol",
+      "volume": "475",
+      "pages": "69-82",
+      "pmid": "7514665",
+      "doi": "10.1113/jphysiol.1994.sp020050"
+    },
+    "bormann1987": {
+      "authors": "Bormann J, Hamill OP, Sakmann B",
+      "year": 1987,
+      "title": "Mechanism of anion permeation through channels gated by glycine and gamma-aminobutyric acid in mouse cultured spinal neurones",
+      "journal": "J Physiol",
+      "volume": "385",
+      "pages": "243-86",
+      "pmid": "2443667",
+      "doi": "10.1113/jphysiol.1987.sp016493"
+    },
+    "mortensen2012": {
+      "authors": "Mortensen M, Patel B, Smart TG",
+      "year": 2012,
+      "title": "GABA Potency at GABA(A) Receptors Found in Synaptic and Extrasynaptic Zones",
+      "journal": "Front Cell Neurosci",
+      "volume": "6",
+      "pages": "1",
+      "pmid": "22319471",
+      "doi": "10.3389/fncel.2012.00001"
+    },
+    "kaila2014": {
+      "authors": "Kaila K, Price TJ, Payne JA, et al.",
+      "year": 2014,
+      "title": "Cation-chloride cotransporters in neuronal development, plasticity and disease",
+      "journal": "Nat Rev Neurosci",
+      "volume": "15",
+      "pages": "637-54",
+      "pmid": "25234263",
+      "doi": "10.1038/nrn3819"
+    },
+    "masiulis2019": {
+      "authors": "Masiulis S, Desai R, Uchański T, et al.",
+      "year": 2019,
+      "title": "GABA(A) receptor signalling mechanisms revealed by structural pharmacology",
+      "journal": "Nature",
+      "volume": "565",
+      "pages": "454-459",
+      "pmid": "30602790",
+      "doi": "10.1038/s41586-018-0832-5"
+    },
+    "zhu2018": {
+      "authors": "Zhu S, Noviello CM, Teng J, et al.",
+      "year": 2018,
+      "title": "Structure of a human synaptic GABA(A) receptor",
+      "journal": "Nature",
+      "volume": "559",
+      "pages": "67-72",
+      "pmid": "29950725",
+      "doi": "10.1038/s41586-018-0255-3"
+    },
+    "sigel2018": {
+      "authors": "Sigel E, Ernst M",
+      "year": 2018,
+      "title": "The Benzodiazepine Binding Sites of GABA(A) Receptors",
+      "journal": "Trends Pharmacol Sci",
+      "volume": "39",
+      "pages": "659-671",
+      "pmid": "29716746",
+      "doi": "10.1016/j.tips.2018.03.006"
+    },
+    "rudolph1999": {
+      "authors": "Rudolph U, Crestani F, Benke D, et al.",
+      "year": 1999,
+      "title": "Benzodiazepine actions mediated by specific gamma-aminobutyric acid(A) receptor subtypes",
+      "journal": "Nature",
+      "volume": "401",
+      "pages": "796-800",
+      "pmid": "10548105",
+      "doi": "10.1038/44579"
+    },
+    "mckernan2000": {
+      "authors": "McKernan RM, Rosahl TW, Reynolds DS, et al.",
+      "year": 2000,
+      "title": "Sedative but not anxiolytic properties of benzodiazepines are mediated by the GABA(A) receptor alpha1 subtype",
+      "journal": "Nat Neurosci",
+      "volume": "3",
+      "pages": "587-92",
+      "pmid": "10816315",
+      "doi": "10.1038/75761"
+    },
+    "low2000": {
+      "authors": "Löw K, Crestani F, Keist R, et al.",
+      "year": 2000,
+      "title": "Molecular and neuronal substrate for the selective attenuation of anxiety",
+      "journal": "Science",
+      "volume": "290",
+      "pages": "131-4",
+      "pmid": "11021797",
+      "doi": "10.1126/science.290.5489.131"
+    },
+    "crestani2002": {
+      "authors": "Crestani F, Keist R, Fritschy JM, et al.",
+      "year": 2002,
+      "title": "Trace fear conditioning involves hippocampal alpha5 GABA(A) receptors",
+      "journal": "Proc Natl Acad Sci U S A",
+      "volume": "99",
+      "pages": "8980-5",
+      "pmid": "12084936",
+      "doi": "10.1073/pnas.142288699"
+    },
+    "rudolph2011": {
+      "authors": "Rudolph U, Knoflach F",
+      "year": 2011,
+      "title": "Beyond classical benzodiazepines: novel therapeutic potential of GABAA receptor subtypes",
+      "journal": "Nat Rev Drug Discov",
+      "volume": "10",
+      "pages": "685-97",
+      "pmid": "21799515",
+      "doi": "10.1038/nrd3502"
+    },
+    "pirker2000": {
+      "authors": "Pirker S, Schwarzer C, Wieselthaler A, et al.",
+      "year": 2000,
+      "title": "GABA(A) receptors: immunocytochemical distribution of 13 subunits in the adult rat brain",
+      "journal": "Neuroscience",
+      "volume": "101",
+      "pages": "815-50",
+      "pmid": "11113332",
+      "doi": "10.1016/s0306-4522(00)00442-5"
+    },
+    "fritschy1995": {
+      "authors": "Fritschy JM, Mohler H",
+      "year": 1995,
+      "title": "GABAA-receptor heterogeneity in the adult rat brain: differential regional and cellular distribution of seven major subunits",
+      "journal": "J Comp Neurol",
+      "volume": "359",
+      "pages": "154-94",
+      "pmid": "8557845",
+      "doi": "10.1002/cne.903590111"
+    },
+    "griffin2013": {
+      "authors": "Griffin CE 3rd, Kaye AM, Bueno FR, et al.",
+      "year": 2013,
+      "title": "Benzodiazepine pharmacology and central nervous system-mediated effects",
+      "journal": "Ochsner J",
+      "volume": "13",
+      "pages": "214-23",
+      "pmid": "23789008"
+    },
+    "buckley1995": {
+      "authors": "Buckley NA, Dawson AH, Whyte IM, et al.",
+      "year": 1995,
+      "title": "Relative toxicity of benzodiazepines in overdose",
+      "journal": "BMJ",
+      "volume": "310",
+      "pages": "219-21",
+      "pmid": "7866122",
+      "doi": "10.1136/bmj.310.6974.219"
+    },
+    "isbister2004": {
+      "authors": "Isbister GK, O'Regan L, Sibbritt D, et al.",
+      "year": 2004,
+      "title": "Alprazolam is relatively more toxic than other benzodiazepines in overdose",
+      "journal": "Br J Clin Pharmacol",
+      "volume": "58",
+      "pages": "88-95",
+      "pmid": "15206998",
+      "doi": "10.1111/j.1365-2125.2004.02089.x"
+    },
+    "gaudreault1991": {
+      "authors": "Gaudreault P, Guay J, Thivierge RL, et al.",
+      "year": 1991,
+      "title": "Benzodiazepine poisoning. Clinical and pharmacological considerations and treatment",
+      "journal": "Drug Saf",
+      "volume": "6",
+      "pages": "247-65",
+      "pmid": "1888441",
+      "doi": "10.2165/00002018-199106040-00003"
+    },
+    "pritchett1989": {
+      "authors": "Pritchett DB, Lüddens H, Seeburg PH",
+      "year": 1989,
+      "title": "Type I and type II GABAA-benzodiazepine receptors produced in transfected cells",
+      "journal": "Science",
+      "volume": "245",
+      "pages": "1389-92",
+      "pmid": "2551039",
+      "doi": "10.1126/science.2551039"
+    },
+    "huang2000": {
+      "authors": "Huang Q, He X, Ma C, et al.",
+      "year": 2000,
+      "title": "Pharmacophore/receptor models for GABA(A)/BzR subtypes (alpha1beta3gamma2, alpha5beta3gamma2, and alpha6beta3gamma2) via a comprehensive ligand-mapping approach",
+      "journal": "J Med Chem",
+      "volume": "43",
+      "pages": "71-95",
+      "pmid": "10633039",
+      "doi": "10.1021/jm990341r"
+    },
+    "golani2022": {
+      "authors": "Golani LK, Yeunus Mian M, Ahmed T, et al.",
+      "year": 2022,
+      "title": "Rationalizing the binding and α subtype selectivity of synthesized imidazodiazepines and benzodiazepines at GABAA receptors by using molecular docking studies",
+      "journal": "Bioorg Med Chem Lett",
+      "volume": "62",
+      "pages": "128637",
+      "pmid": "35218882",
+      "doi": "10.1016/j.bmcl.2022.128637"
+    },
+    "huang1998": {
+      "authors": "Huang Q, Liu R, Zhang P, et al.",
+      "year": 1998,
+      "title": "Predictive models for GABAA/benzodiazepine receptor subtypes: studies of quantitative structure-activity relationships for imidazobenzodiazepines at five recombinant GABAA/benzodiazepine receptor subtypes [alphaxbeta3gamma2 (x = 1-3, 5, and 6)] via comparative molecular field analysis",
+      "journal": "J Med Chem",
+      "volume": "41",
+      "pages": "4130-42",
+      "pmid": "9767648",
+      "doi": "10.1021/jm980317y"
+    },
+    "harding2024": {
+      "authors": "Harding SD, Armstrong JF, Faccenda E, et al.",
+      "year": 2024,
+      "title": "The IUPHAR/BPS Guide to PHARMACOLOGY in 2024",
+      "journal": "Nucleic Acids Res",
+      "volume": "52",
+      "pages": "D1438-D1449",
+      "pmid": "37897341",
+      "doi": "10.1093/nar/gkad944"
+    },
+    "zdrazil2024": {
+      "authors": "Zdrazil B, Felix E, Hunter F, et al.",
+      "year": 2024,
+      "title": "The ChEMBL Database in 2023: a drug discovery platform spanning multiple bioactivity data types and time periods",
+      "journal": "Nucleic Acids Res",
+      "volume": "52",
+      "pages": "D1180-D1192",
+      "pmid": "37933841",
+      "doi": "10.1093/nar/gkad1004"
+    },
+    "hadingham1993b": {
+      "authors": "Hadingham KL, Wingrove P, Le Bourdelles B, et al.",
+      "year": 1993,
+      "title": "Cloning of cDNA sequences encoding human alpha 2 and alpha 3 gamma-aminobutyric acidA receptor subunits and characterization of the benzodiazepine pharmacology of recombinant alpha 1-, alpha 2-, alpha 3-, and alpha 5-containing human gamma-aminobutyric acidA receptors",
+      "journal": "Mol Pharmacol",
+      "volume": "43",
+      "pages": "970-5",
+      "pmid": "8391122"
+    },
+    "fda_valium": {
+      "authors": "Roche Laboratories Inc.",
+      "year": 2025,
+      "title": "Valium (diazepam) tablets: prescribing information (NDA013263), revised 2025-12-01",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "554baee5-b171-4452-a50a-41a0946f956c",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=554baee5-b171-4452-a50a-41a0946f956c",
+      "revised": "2025-12-01"
+    },
+    "fda_valtoco": {
+      "authors": "Neurelis, Inc",
+      "year": 2026,
+      "title": "Valtoco (diazepam) nasal spray: prescribing information (NDA211635), revised 2026-06-03",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "1a8bcc90-68fa-474d-832c-0df01e825f39",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1a8bcc90-68fa-474d-832c-0df01e825f39",
+      "revised": "2026-06-03"
+    },
+    "fda_diazepam_rectal": {
+      "authors": "Zydus Pharmaceuticals USA Inc.",
+      "year": 2026,
+      "title": "Diazepam rectal gel: prescribing information (ANDA217468), revised 2026-04-30",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "652714c7-25c4-4d05-979d-8eee3b6f2f4d",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=652714c7-25c4-4d05-979d-8eee3b6f2f4d",
+      "revised": "2026-04-30"
+    },
+    "fda_xanax": {
+      "authors": "PHARMACIA & UPJOHN COMPANY LLC",
+      "year": 2023,
+      "title": "Xanax (alprazolam) tablets: prescribing information (NDA018276), revised 2023-01-18",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "388e249d-b9b6-44c3-9f8f-880eced0239f",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=388e249d-b9b6-44c3-9f8f-880eced0239f",
+      "revised": "2023-01-18"
+    },
+    "fda_ativan": {
+      "authors": "Bausch Health US LLC",
+      "year": 2025,
+      "title": "Ativan (lorazepam) tablets: prescribing information (NDA017794), revised 2025-07-09",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "89057c93-8155-4040-acec-64e877bd2b4c",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=89057c93-8155-4040-acec-64e877bd2b4c",
+      "revised": "2025-07-09"
+    },
+    "fda_klonopin": {
+      "authors": "H2-Pharma, LLC",
+      "year": 2025,
+      "title": "Klonopin (clonazepam) tablets: prescribing information (NDA017533), revised 2025-12-01",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "cfa0d79a-843c-4b88-95a1-e9511d649ca1",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=cfa0d79a-843c-4b88-95a1-e9511d649ca1",
+      "revised": "2025-12-01"
+    },
+    "fda_midazolam_syrup": {
+      "authors": "Padagis US LLC",
+      "year": 2022,
+      "title": "Midazolam hydrochloride syrup: prescribing information (ANDA076379), revised 2022-12-06",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "0be63f63-6a93-4782-8f9c-d13ca5ae44bd",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0be63f63-6a93-4782-8f9c-d13ca5ae44bd",
+      "revised": "2022-12-06"
+    },
+    "fda_midazolam_inj": {
+      "authors": "SOMERSET THERAPEUTICS, LLC",
+      "year": 2023,
+      "title": "Midazolam injection: prescribing information (ANDA090316), revised 2023-12-05",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "06e4f754-72df-4eb4-aaed-b538524f5277",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=06e4f754-72df-4eb4-aaed-b538524f5277",
+      "revised": "2023-12-05"
+    },
+    "fda_nayzilam": {
+      "authors": "UCB, Inc.",
+      "year": 2023,
+      "title": "Nayzilam (midazolam) nasal spray: prescribing information (NDA211321), revised 2023-01-19",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "2b29422e-54d5-4a49-8522-e9cf752368c3",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=2b29422e-54d5-4a49-8522-e9cf752368c3",
+      "revised": "2023-01-19"
+    },
+    "fda_oxazepam": {
+      "authors": "American Health Packaging",
+      "year": 2024,
+      "title": "Oxazepam capsules: prescribing information (ANDA072253), revised 2024-11-14",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "03440821-831c-4085-98f9-faa88e98c503",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=03440821-831c-4085-98f9-faa88e98c503",
+      "revised": "2024-11-14"
+    },
+    "fda_triazolam": {
+      "authors": "A-S Medication Solutions",
+      "year": 2025,
+      "title": "Triazolam tablets: prescribing information (ANDA213003), revised 2025-11-26",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "0a96c618-1869-4cb6-b9f3-549e8581af72",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0a96c618-1869-4cb6-b9f3-549e8581af72",
+      "revised": "2025-11-26"
+    },
+    "fda_ambien": {
+      "authors": "Cosette Pharmaceuticals, Inc.",
+      "year": 2025,
+      "title": "Ambien (zolpidem tartrate) tablets: prescribing information (NDA019908), revised 2025-02-07",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "747949c5-2c91-4909-8a07-71b6826f8e97",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=747949c5-2c91-4909-8a07-71b6826f8e97",
+      "revised": "2025-02-07"
+    },
+    "fda_flumazenil": {
+      "authors": "Henry Schein, Inc.",
+      "year": 2025,
+      "title": "Flumazenil injection: prescribing information (ANDA078527), revised 2025-02-14",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "1855bb03-392f-4a0d-8361-24fc2a0e635e",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=1855bb03-392f-4a0d-8361-24fc2a0e635e",
+      "revised": "2025-02-14"
+    },
+    "greenblatt1989": {
+      "authors": "Greenblatt DJ, Harmatz JS, Friedman H, et al.",
+      "year": 1989,
+      "title": "A large-sample study of diazepam pharmacokinetics",
+      "journal": "Ther Drug Monit",
+      "volume": "11",
+      "pages": "652-7",
+      "pmid": "2512694",
+      "doi": "10.1097/00007691-198911000-00007"
+    },
+    "greenblatt1976": {
+      "authors": "Greenblatt DJ, Schillings RT, Kyriakopoulos AA, et al.",
+      "year": 1976,
+      "title": "Clinical pharmacokinetics of lorazepam. I. Absorption and disposition of oral 14C-lorazepam",
+      "journal": "Clin Pharmacol Ther",
+      "volume": "20",
+      "pages": "329-41",
+      "pmid": "8232",
+      "doi": "10.1002/cpt1976203329"
+    },
+    "greenblatt1982": {
+      "authors": "Greenblatt DJ, Divoll M, Harmatz JS, et al.",
+      "year": 1982,
+      "title": "Pharmacokinetic comparison of sublingual lorazepam with intravenous, intramuscular, and oral lorazepam",
+      "journal": "J Pharm Sci",
+      "volume": "71",
+      "pages": "248-52",
+      "pmid": "6121043",
+      "doi": "10.1002/jps.2600710227"
+    },
+    "genisnajera2024": {
+      "authors": "Genis-Najera L, Sañudo-Maury ME",
+      "year": 2024,
+      "title": "Bioequivalence Study of Two Tablet Formulations of Clonazepam 2 mg: A Randomized, Open-Label, Crossover Study in Healthy Mexican Volunteers Under Fasting Conditions",
+      "journal": "Neurol Ther",
+      "volume": "13",
+      "pages": "141-152",
+      "pmid": "38041794",
+      "doi": "10.1007/s40120-023-00567-5"
+    },
+    "chauhan2000": {
+      "authors": "Chauhan BL, Sane SP, Revankar SN, et al.",
+      "year": 2000,
+      "title": "Comparative bioavailability study of clonazepam after oral administration of two tablet formulations",
+      "journal": "J Assoc Physicians India",
+      "volume": "48",
+      "pages": "985-7",
+      "pmid": "11200924"
+    },
+    "hung1996": {
+      "authors": "Hung OR, Dyck JB, Varvel J, et al.",
+      "year": 1996,
+      "title": "Comparative absorption kinetics of intramuscular midazolam and diazepam",
+      "journal": "Can J Anaesth",
+      "volume": "43",
+      "pages": "450-5",
+      "pmid": "8723850",
+      "doi": "10.1007/BF03018105"
+    },
+    "reichard2010": {
+      "authors": "Reichard DW, Atkinson AJ, Hong SP, et al.",
+      "year": 2010,
+      "title": "Human safety and pharmacokinetic study of intramuscular midazolam administered by autoinjector",
+      "journal": "J Clin Pharmacol",
+      "volume": "50",
+      "pages": "1128-35",
+      "pmid": "20466872",
+      "doi": "10.1177/0091270009358083"
+    },
+    "ivaturi2009": {
+      "authors": "Ivaturi VD, Riss JR, Kriel RL, et al.",
+      "year": 2009,
+      "title": "Pharmacokinetics and tolerability of intranasal diazepam and midazolam in healthy adult volunteers",
+      "journal": "Acta Neurol Scand",
+      "volume": "120",
+      "pages": "353-7",
+      "pmid": "19456308",
+      "doi": "10.1111/j.1600-0404.2009.01170.x"
+    },
+    "vanhecken1985": {
+      "authors": "van Hecken AM, Tjandramaga TB, Verbesselt R, et al.",
+      "year": 1985,
+      "title": "The influence of diflunisal on the pharmacokinetics of oxazepam",
+      "journal": "Br J Clin Pharmacol",
+      "volume": "20",
+      "pages": "225-34",
+      "pmid": "4041343",
+      "doi": "10.1111/j.1365-2125.1985.tb05065.x"
+    },
+    "barbhaiya1995": {
+      "authors": "Barbhaiya RH, Shukla UA, Kroboth PD, et al.",
+      "year": 1995,
+      "title": "Coadministration of nefazodone and benzodiazepines: II. A pharmacokinetic interaction study with triazolam",
+      "journal": "J Clin Psychopharmacol",
+      "volume": "15",
+      "pages": "320-6",
+      "pmid": "8830062",
+      "doi": "10.1097/00004714-199510000-00003"
+    },
+    "backman1999": {
+      "authors": "Backman JT, Wang JS, Wen X, et al.",
+      "year": 1999,
+      "title": "Mibefradil but not isradipine substantially elevates the plasma concentrations of the CYP3A4 substrate triazolam",
+      "journal": "Clin Pharmacol Ther",
+      "volume": "66",
+      "pages": "401-7",
+      "pmid": "10546924",
+      "doi": "10.1053/cp.1999.v66.a101461"
+    },
+    "otani1997": {
+      "authors": "Otani K, Yasui N, Furukori H, et al.",
+      "year": 1997,
+      "title": "Relationship between single oral dose pharmacokinetics of alprazolam and triazolam",
+      "journal": "Int Clin Psychopharmacol",
+      "volume": "12",
+      "pages": "153-7",
+      "pmid": "9248872",
+      "doi": "10.1097/00004850-199705000-00006"
+    },
+    "dehaas2010": {
+      "authors": "de Haas SL, Schoemaker RC, van Gerven JM, et al.",
+      "year": 2010,
+      "title": "Pharmacokinetics, pharmacodynamics and the pharmacokinetic/ pharmacodynamic relationship of zolpidem in healthy subjects",
+      "journal": "J Psychopharmacol",
+      "volume": "24",
+      "pages": "1619-29",
+      "pmid": "19648220",
+      "doi": "10.1177/0269881109106898"
+    },
+    "masica2004": {
+      "authors": "Masica AL, Mayo G, Wilkinson GR",
+      "year": 2004,
+      "title": "In vivo comparisons of constitutive cytochrome P450 3A activity assessed by alprazolam, triazolam, and midazolam",
+      "journal": "Clin Pharmacol Ther",
+      "volume": "76",
+      "pages": "341-9",
+      "pmid": "15470333",
+      "doi": "10.1016/j.clpt.2004.07.003"
+    },
+    "ochs1987": {
+      "authors": "Ochs HR, Greenblatt DJ, Burstein ES",
+      "year": 1987,
+      "title": "Lack of influence of cigarette smoking on triazolam pharmacokinetics",
+      "journal": "Br J Clin Pharmacol",
+      "volume": "23",
+      "pages": "759-63",
+      "pmid": "3606935",
+      "doi": "10.1111/j.1365-2125.1987.tb03112.x"
+    },
+    "kroboth1987": {
+      "authors": "Kroboth PD, Smith RB, Van Thiel DH, et al.",
+      "year": 1987,
+      "title": "Nighttime dosing of triazolam in patients with liver disease and normal subjects: kinetics and daytime effects",
+      "journal": "J Clin Pharmacol",
+      "volume": "27",
+      "pages": "555-60",
+      "pmid": "3655006",
+      "doi": "10.1002/j.1552-4604.1987.tb03066.x"
+    },
+    "fda_lorazepam_inj": {
+      "authors": "Hikma Pharmaceuticals USA Inc.",
+      "year": 2024,
+      "title": "Lorazepam injection: prescribing information (NDA018140), revised 2024-04-10",
+      "journal": "DailyMed, US National Library of Medicine",
+      "setid": "4084fa74-9fd2-45ef-9d56-27bfa31d4e46",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=4084fa74-9fd2-45ef-9d56-27bfa31d4e46",
+      "revised": "2024-04-10"
+    },
+    "nobay2004": {
+      "authors": "Nobay F, Simon BC, Levitt MA, et al.",
+      "year": 2004,
+      "title": "A prospective, double-blind, randomized trial of midazolam versus haloperidol versus lorazepam in the chemical restraint of violent and severely agitated patients",
+      "journal": "Acad Emerg Med",
+      "volume": "11",
+      "pages": "744-9",
+      "pmid": "15231461",
+      "doi": "10.1197/j.aem.2003.06.015"
+    },
+    "nice_ng10": {
+      "authors": "National Institute for Health and Care Excellence",
+      "year": 2015,
+      "title": "Violence and aggression: short-term management in mental health, health and community settings (NICE guideline NG10)",
+      "journal": "NICE",
+      "url": "https://www.nice.org.uk/guidance/ng10"
+    },
+    "fass_stesolid_tab": {
+      "authors": "FASS Vård (Läkemedelsindustriföreningen)",
+      "year": 2026,
+      "title": "Stesolid® tablett 5 mg (Teva): FASS-text (Swedish summary of product characteristics), accessed 2026-10-10",
+      "journal": "fass.se",
+      "url": "https://fass.se/health/product/19670228000021/fass-text"
+    },
+    "fass_stesolid_rect": {
+      "authors": "FASS Vård (Läkemedelsindustriföreningen)",
+      "year": 2026,
+      "title": "Stesolid® rektallösning 5 mg (Teva): FASS-text (Swedish summary of product characteristics), accessed 2026-10-10",
+      "journal": "fass.se",
+      "url": "https://fass.se/health/product/19771118000043/fass-text"
+    },
+    "fass_xanor": {
+      "authors": "FASS Vård (Läkemedelsindustriföreningen)",
+      "year": 2026,
+      "title": "Xanor® tablett 0,5 mg (Viatris): FASS-text (Swedish summary of product characteristics), accessed 2026-10-10",
+      "journal": "fass.se",
+      "url": "https://fass.se/health/product/19850201000020/fass-text"
+    },
+    "fass_temesta": {
+      "authors": "FASS Vård (Läkemedelsindustriföreningen)",
+      "year": 2026,
+      "title": "Temesta® tablett 1 mg (Pfizer): FASS-text (Swedish summary of product characteristics), accessed 2026-10-10",
+      "journal": "fass.se",
+      "url": "https://fass.se/health/product/19800125000040/fass-text"
+    },
+    "fass_iktorivil": {
+      "authors": "FASS Vård (Läkemedelsindustriföreningen)",
+      "year": 2026,
+      "title": "Iktorivil® tablett 0,5 mg (Cheplapharm): FASS-text (Swedish summary of product characteristics), accessed 2026-10-10",
+      "journal": "fass.se",
+      "url": "https://fass.se/health/product/19741101000053/fass-text"
+    },
+    "fass_midazolam_accord": {
+      "authors": "FASS Vård (Läkemedelsindustriföreningen)",
+      "year": 2026,
+      "title": "Midazolam Accord injektionsvätska 5 mg/ml (Accord Healthcare AB): FASS-text (Swedish summary of product characteristics), accessed 2026-10-10",
+      "journal": "fass.se",
+      "url": "https://fass.se/health/product/20070714000041/fass-text"
+    },
+    "fass_oxascand": {
+      "authors": "FASS Vård (Läkemedelsindustriföreningen)",
+      "year": 2026,
+      "title": "Oxascand tablett 10 mg (Teva): FASS-text (Swedish summary of product characteristics), accessed 2026-10-10",
+      "journal": "fass.se",
+      "url": "https://fass.se/health/product/19880219000019/fass-text"
+    },
+    "fass_stilnoct": {
+      "authors": "FASS Vård (Läkemedelsindustriföreningen)",
+      "year": 2026,
+      "title": "Stilnoct filmdragerad tablett 10 mg (Sanofi AB): FASS-text (Swedish summary of product characteristics), accessed 2026-10-10",
+      "journal": "fass.se",
+      "url": "https://fass.se/health/product/19940128000064/fass-text"
+    },
+    "fass_imovane": {
+      "authors": "FASS Vård (Läkemedelsindustriföreningen)",
+      "year": 2026,
+      "title": "Imovane® tablett 7,5 mg (Viatris): FASS-text (Swedish summary of product characteristics), accessed 2026-10-10",
+      "journal": "fass.se",
+      "url": "https://fass.se/health/product/19910816000058/fass-text"
+    },
+    "fass_flumazenil": {
+      "authors": "FASS Vård (Läkemedelsindustriföreningen)",
+      "year": 2026,
+      "title": "Flumazenil Fresenius Kabi injektionsvätska 0,1 mg/ml (Fresenius Kabi): FASS-text (Swedish summary of product characteristics), accessed 2026-10-10",
+      "journal": "fass.se",
+      "url": "https://fass.se/health/product/20050620000588/fass-text"
+    },
+    "kim2025": {
+      "authors": "Kim S, Chen J, Cheng T, et al.",
+      "year": 2025,
+      "title": "PubChem 2025 update",
+      "journal": "Nucleic Acids Res",
+      "volume": "53",
+      "pages": "D1516-D1525",
+      "pmid": "39558165",
+      "doi": "10.1093/nar/gkae1059"
+    },
+    "labmed_skane_clonazepam": {
+      "authors": "Labmedicin Skåne",
+      "year": 2026,
+      "title": "AnalysPortalen: S-Klonazepam (analysis no. 352), target range 40-120 nmol/L; accessed 2026-10-10",
+      "journal": "Region Skåne"
+    },
+    "benari2002": {
+      "authors": "Ben-Ari Y",
+      "year": 2002,
+      "title": "Excitatory actions of gaba during development: the nature of the nurture",
+      "journal": "Nat Rev Neurosci",
+      "volume": "3",
+      "pages": "728-39",
+      "pmid": "12209121",
+      "doi": "10.1038/nrn920"
+    },
+    "farrant2007": {
+      "authors": "Farrant M, Kaila K",
+      "year": 2007,
+      "title": "The cellular, molecular and ionic basis of GABA(A) receptor signalling",
+      "journal": "Prog Brain Res",
+      "volume": "160",
+      "pages": "59-87",
+      "pmid": "17499109",
+      "doi": "10.1016/S0079-6123(06)60005-8"
+    },
+    "rivera1999": {
+      "authors": "Rivera C, Voipio J, Payne JA, et al.",
+      "year": 1999,
+      "title": "The K+/Cl- co-transporter KCC2 renders GABA hyperpolarizing during neuronal maturation",
+      "journal": "Nature",
+      "volume": "397",
+      "pages": "251-5",
+      "pmid": "9930699",
+      "doi": "10.1038/16697"
+    },
+    "haas1999": {
+      "authors": "Haas KF, Macdonald RL",
+      "year": 1999,
+      "title": "GABAA receptor subunit gamma2 and delta subtypes confer unique kinetic properties on recombinant GABAA receptor currents in mouse fibroblasts",
+      "journal": "J Physiol",
+      "volume": "514",
+      "pages": "27-45",
+      "pmid": "9831714",
+      "doi": "10.1111/j.1469-7793.1999.027af.x"
+    },
+    "haas2004erratum": {
+      "authors": "Haas KF, Macdonald RL",
+      "year": 2004,
+      "title": "Erratum: GABAA receptor subunit gamma2 and delta subtypes confer unique kinetic properties on recombinant GABAA receptor currents in mouse fibroblasts (corrected rate constants for Fig. 7)",
+      "journal": "J Physiol",
+      "volume": "558",
+      "pages": "1013",
+      "doi": "10.1113/jphysiol.2004.558001",
+      "url": "https://doi.org/10.1113/jphysiol.2004.558001"
+    },
+    "lavoie1996": {
+      "authors": "Lavoie AM, Twyman RE",
+      "year": 1996,
+      "title": "Direct evidence for diazepam modulation of GABAA receptor microscopic affinity",
+      "journal": "Neuropharmacology",
+      "volume": "35",
+      "pages": "1383-92",
+      "pmid": "9014155",
+      "doi": "10.1016/s0028-3908(96)00077-9"
+    },
+    "gielen2012": {
+      "authors": "Gielen MC, Lumb MJ, Smart TG",
+      "year": 2012,
+      "title": "Benzodiazepines modulate GABAA receptors by regulating the preactivation step after GABA binding",
+      "journal": "J Neurosci",
+      "volume": "32",
+      "pages": "5707-15",
+      "pmid": "22539833",
+      "doi": "10.1523/JNEUROSCI.5663-11.2012"
+    },
+    "mellor1997": {
+      "authors": "Mellor JR, Randall AD",
+      "year": 1997,
+      "title": "Frequency-dependent actions of benzodiazepines on GABAA receptors in cultured murine cerebellar granule cells",
+      "journal": "J Physiol",
+      "volume": "503",
+      "pages": "353-69",
+      "pmid": "9306278",
+      "doi": "10.1111/j.1469-7793.1997.353bh.x"
+    },
+    "jedlicka2011": {
+      "authors": "Jedlicka P, Deller T, Gutkin BS, Backus KH",
+      "year": 2011,
+      "title": "Activity-dependent intracellular chloride accumulation and diffusion controls GABA(A) receptor-mediated synaptic transmission",
+      "journal": "Hippocampus",
+      "volume": "21",
+      "pages": "885-98",
+      "pmid": "20575006",
+      "doi": "10.1002/hipo.20804"
+    },
+    "sallard2021": {
+      "authors": "Sallard E, Letourneur D, Legendre P",
+      "year": 2021,
+      "title": "Electrophysiology of ionotropic GABA receptors",
+      "journal": "Cell Mol Life Sci",
+      "volume": "78",
+      "pages": "5341-5370",
+      "pmid": "34061215",
+      "doi": "10.1007/s00018-021-03846-2"
+    },
+    "jones1995": {
+      "authors": "Jones MV, Westbrook GL",
+      "year": 1995,
+      "title": "Desensitized states prolong GABAA channel responses to brief agonist pulses",
+      "journal": "Neuron",
+      "volume": "15",
+      "pages": "181-91",
+      "pmid": "7542462",
+      "doi": "10.1016/0896-6273(95)90075-6"
+    }
+  },
+  "sources": {
+    "drugs.diazepam.pk.F": {
+      "refs": [
+        "fda_valium",
+        "mandelli1978"
+      ],
+      "reported": "label: >90% absorbed",
+      "status": "consistent"
+    },
+    "drugs.diazepam.pk.t12": {
+      "refs": [
+        "fda_valium",
+        "fda_diazepam_rectal",
+        "fda_valtoco"
+      ],
+      "reported": "label: up to 48 h; 46 h (rectal gel); 49 h (nasal spray)",
+      "status": "consistent"
+    },
+    "drugs.diazepam.pk.vd": {
+      "refs": [
+        "fda_valium",
+        "greenblatt1980"
+      ],
+      "reported": "label: 0.8-1.0 L/kg (young men); literature: 0.7-4.7 L/kg",
+      "status": "consistent",
+      "note": "slightly above the label range for young men; rises with age"
+    },
+    "drugs.diazepam.pk.fu": {
+      "refs": [
+        "fda_valium",
+        "greenblatt1980"
+      ],
+      "reported": "label: 98% bound (fu 0.02)",
+      "status": "consistent"
+    },
+    "drugs.diazepam.pk.pathways": {
+      "refs": [
+        "fda_valium",
+        "fda_valtoco",
+        "andersson1994"
+      ],
+      "reported": "label: CYP2C19 and CYP3A4 (demethylation), CYP3A4 (hydroxylation)",
+      "status": "consistent",
+      "note": "the 50/50 split is a model assumption"
+    },
+    "drugs.diazepam.pk.ref": {
+      "refs": [
+        "hiemke2018"
+      ],
+      "reported": "see AGNP table",
+      "status": "full text"
+    },
+    "drugs.alprazolam.pk.F": {
+      "refs": [
+        "greenblatt1993"
+      ],
+      "reported": "80-100%",
+      "status": "consistent"
+    },
+    "drugs.alprazolam.pk.t12": {
+      "refs": [
+        "fda_xanax",
+        "greenblatt1993"
+      ],
+      "reported": "label: 11.2 h (6.3-26.9 h)",
+      "status": "consistent"
+    },
+    "drugs.alprazolam.pk.vd": {
+      "refs": [
+        "greenblatt1993"
+      ],
+      "reported": "0.8-1.3 L/kg",
+      "status": "consistent"
+    },
+    "drugs.alprazolam.pk.fu": {
+      "refs": [
+        "fda_xanax",
+        "garzone1989"
+      ],
+      "reported": "label: 80% bound (fu 0.20); Garzone 1989: 70% bound",
+      "status": "consistent"
+    },
+    "drugs.alprazolam.pk.rt.sl.F": {
+      "refs": [
+        "garzone1989"
+      ],
+      "reported": "SL peaks higher and earlier than oral; F not stated",
+      "status": "full text"
+    },
+    "drugs.alprazolam.pk.ref": {
+      "refs": [
+        "hiemke2018"
+      ],
+      "reported": "see AGNP table",
+      "status": "full text"
+    },
+    "drugs.lorazepam.pk.F": {
+      "refs": [
+        "fda_ativan",
+        "greenblatt1979"
+      ],
+      "reported": "label: 90% (absolute)",
+      "status": "consistent"
+    },
+    "drugs.lorazepam.pk.im.F": {
+      "refs": [
+        "greenblatt1979"
+      ],
+      "reported": "80-100% (oral and IM)",
+      "status": "consistent"
+    },
+    "drugs.lorazepam.pk.t12": {
+      "refs": [
+        "fda_ativan",
+        "greenblatt1981"
+      ],
+      "reported": "label: about 12 h",
+      "status": "consistent"
+    },
+    "drugs.lorazepam.pk.vd": {
+      "refs": [
+        "greenblatt1981"
+      ],
+      "reported": "1.0-1.3 L/kg",
+      "status": "consistent"
+    },
+    "drugs.lorazepam.pk.fu": {
+      "refs": [
+        "fda_ativan",
+        "greenblatt1981"
+      ],
+      "reported": "label: about 85% bound (fu 0.15); literature: fu 0.08-0.12",
+      "status": "consistent",
+      "note": "label value; literature 0.08-0.12"
+    },
+    "drugs.lorazepam.pk.ref": {
+      "refs": [
+        "hiemke2018"
+      ],
+      "reported": "see AGNP table",
+      "status": "full text"
+    },
+    "drugs.oxazepam.pk.t12": {
+      "refs": [
+        "fda_oxazepam",
+        "greenblatt1981"
+      ],
+      "reported": "label: 8.2 h (5.7-10.9 h)",
+      "status": "consistent"
+    },
+    "drugs.oxazepam.pk.vd": {
+      "refs": [
+        "greenblatt1981"
+      ],
+      "reported": "0.6-2.0 L/kg",
+      "status": "consistent"
+    },
+    "drugs.oxazepam.pk.fu": {
+      "refs": [
+        "greenblatt1981"
+      ],
+      "reported": "0.02-0.04",
+      "status": "consistent"
+    },
+    "drugs.clonazepam.pk.F": {
+      "refs": [
+        "fda_klonopin",
+        "crevoisier2003"
+      ],
+      "reported": "label: about 90%",
+      "status": "consistent"
+    },
+    "drugs.clonazepam.pk.t12": {
+      "refs": [
+        "fda_klonopin",
+        "crevoisier2003",
+        "greenblatt1987"
+      ],
+      "reported": "label: 30-40 h",
+      "status": "consistent"
+    },
+    "drugs.clonazepam.pk.vd": {
+      "refs": [
+        "crevoisier2003"
+      ],
+      "reported": "Vz 180 L (about 2.6 L/kg at 70 kg)",
+      "status": "consistent",
+      "note": "not stated in the label"
+    },
+    "drugs.clonazepam.pk.ref": {
+      "refs": [
+        "hiemke2018"
+      ],
+      "reported": "see AGNP table",
+      "status": "full text"
+    },
+    "drugs.midazolam.pk.F": {
+      "refs": [
+        "fda_midazolam_syrup",
+        "allonen1981",
+        "heizmann1983"
+      ],
+      "reported": "label: 36% (syrup, children); literature: 44% (31-72%)",
+      "status": "consistent"
+    },
+    "drugs.midazolam.pk.t12": {
+      "refs": [
+        "fda_midazolam_inj",
+        "allonen1981"
+      ],
+      "reported": "label: 1.8-6.4 h (mean about 3 h)",
+      "status": "consistent"
+    },
+    "drugs.midazolam.pk.vd": {
+      "refs": [
+        "fda_midazolam_inj",
+        "knoester2002"
+      ],
+      "reported": "label: 1.0-3.1 L/kg",
+      "status": "consistent"
+    },
+    "drugs.midazolam.pk.fu": {
+      "refs": [
+        "fda_midazolam_inj",
+        "allonen1981"
+      ],
+      "reported": "label: about 97% bound (fu 0.03); Allonen 1981: 94% bound",
+      "status": "consistent"
+    },
+    "drugs.midazolam.pk.rt.nasal.F": {
+      "refs": [
+        "fda_nayzilam",
+        "knoester2002"
+      ],
+      "reported": "label: about 44% (Nayzilam); 83% with a concentrated research spray",
+      "status": "consistent"
+    },
+    "drugs.triazolam.pk.F": {
+      "refs": [
+        "kroboth1995",
+        "masica2004"
+      ],
+      "reported": "44% (Kroboth 1995); 55% ± 20% (Masica 2004, 21 subjects)",
+      "status": "consistent",
+      "note": "mean of the two studies; not stated in the label"
+    },
+    "drugs.triazolam.pk.rt.sl.F": {
+      "refs": [
+        "kroboth1995"
+      ],
+      "reported": "53% (sublingual, absolute)",
+      "status": "consistent",
+      "note": "not stated in the label"
+    },
+    "drugs.triazolam.pk.vd": {
+      "refs": [
+        "masica2004",
+        "garzone1989"
+      ],
+      "reported": "systemic clearance 222 mL/min (Masica 2004); about 1 L/kg (Garzone 1989)",
+      "status": "consistent",
+      "note": "derived: V = CL × t½ / ln 2 = 0.7 L/kg with t½ 2.5 h"
+    },
+    "drugs.triazolam.pk.fu": {
+      "refs": [
+        "garzone1989",
+        "ochs1987"
+      ],
+      "reported": "about 85% bound (Garzone 1989); 18.8% unbound (Ochs 1987)",
+      "status": "consistent",
+      "note": "not stated in the label"
+    },
+    "drugs.triazolam.pk.t12": {
+      "refs": [
+        "fda_triazolam"
+      ],
+      "reported": "label: 1.5-5.5 h",
+      "status": "consistent"
+    },
+    "drugs.zolpidem.pk.F": {
+      "refs": [
+        "salva1995"
+      ],
+      "reported": "about 70%",
+      "status": "consistent"
+    },
+    "drugs.zolpidem.pk.t12": {
+      "refs": [
+        "fda_ambien",
+        "salva1995"
+      ],
+      "reported": "label: 2.5 h (1.4-3.8 h), 10 mg",
+      "status": "consistent"
+    },
+    "drugs.zolpidem.pk.fu": {
+      "refs": [
+        "fda_ambien",
+        "salva1995"
+      ],
+      "reported": "label: 92.5% bound (fu 0.075)",
+      "status": "consistent"
+    },
+    "drugs.zopiclone.pk.F": {
+      "refs": [
+        "fernandez1995"
+      ],
+      "reported": "about 80%",
+      "status": "consistent"
+    },
+    "drugs.zopiclone.pk.t12": {
+      "refs": [
+        "fernandez1995"
+      ],
+      "reported": "3.5-6.5 h",
+      "status": "consistent"
+    },
+    "drugs.zopiclone.pk.fu": {
+      "refs": [
+        "fernandez1995"
+      ],
+      "reported": "45-80% bound (fu 0.20-0.55)",
+      "status": "consistent",
+      "note": "at the upper end of the range"
+    },
+    "drugs.flumazenil.pk.F": {
+      "refs": [
+        "klotz1988"
+      ],
+      "reported": "16%",
+      "status": "consistent"
+    },
+    "drugs.flumazenil.pk.t12": {
+      "refs": [
+        "fda_flumazenil",
+        "klotz1988"
+      ],
+      "reported": "label: 40-80 min",
+      "status": "consistent"
+    },
+    "drugs.flumazenil.pk.vd": {
+      "refs": [
+        "fda_flumazenil",
+        "klotz1988"
+      ],
+      "reported": "label: 0.9-1.1 L/kg (steady state)",
+      "status": "consistent"
+    },
+    "drugs.flumazenil.pk.fu": {
+      "refs": [
+        "fda_flumazenil",
+        "klotz1988"
+      ],
+      "reported": "label: about 50% bound (fu 0.5); Klotz 1988: about 40%",
+      "status": "consistent"
+    },
+    "drugs.diazepam.pd.ki": {
+      "refs": [
+        "huang2000",
+        "pritchett1989",
+        "harding2024",
+        "zdrazil2024"
+      ],
+      "reported": "α1 14, α2 20, α3 15, α5 11 nM (Huang 2000); α1-α3 16-17 nM (Pritchett 1989)",
+      "status": "consistent"
+    },
+    "drugs.alprazolam.pd.ki": {
+      "refs": [
+        "golani2022",
+        "zdrazil2024"
+      ],
+      "reported": "α1 0.8, α2 0.6, α3 1.4 nM (αβ2γ2); rat brain 3.3 nM",
+      "status": "consistent",
+      "note": "α5 (0.5 nM) is an estimate scaled from the earlier α5/α2 ratio; not reported"
+    },
+    "drugs.lorazepam.pd.ki": {
+      "refs": [
+        "sieghart1995"
+      ],
+      "reported": "recombinant αxβγ2 binding tables",
+      "status": "full text",
+      "note": "no subtype-specific Ki in Guide to Pharmacology or ChEMBL"
+    },
+    "drugs.clonazepam.pd.ki": {
+      "refs": [
+        "pritchett1989",
+        "harding2024"
+      ],
+      "reported": "α1 1.3, α2 1.7, α3 2.0 nM",
+      "status": "consistent",
+      "note": "α5 (0.9 nM) not reported"
+    },
+    "drugs.midazolam.pd.ki": {
+      "refs": [
+        "sieghart1995"
+      ],
+      "reported": "recombinant αxβγ2 binding tables",
+      "status": "full text",
+      "note": "no subtype-specific Ki in Guide to Pharmacology or ChEMBL"
+    },
+    "drugs.oxazepam.pd.ki": {
+      "refs": [
+        "sieghart1995"
+      ],
+      "reported": "recombinant αxβγ2 binding tables",
+      "status": "full text",
+      "note": "no subtype-specific Ki in Guide to Pharmacology or ChEMBL"
+    },
+    "drugs.triazolam.pd.ki": {
+      "refs": [
+        "huang2000",
+        "zdrazil2024"
+      ],
+      "reported": "α1 0.8, α2 0.59, α3 1.43, α5 1.54 nM",
+      "status": "consistent",
+      "note": "α2 0.6 nM rounded from 0.59"
+    },
+    "drugs.zolpidem.pd.ki": {
+      "refs": [
+        "huang2000",
+        "hadingham1993b",
+        "pritchett1990",
+        "sanna2002",
+        "harding2024"
+      ],
+      "reported": "α1 27, α2 156, α3 383, α5 >10000 nM (Huang 2000); α2 761, α3 2150 nM (Hadingham 1993)",
+      "status": "consistent",
+      "note": "values from Huang 2000; α2 and α3 vary 2-5-fold between studies"
+    },
+    "drugs.zopiclone.pd.ki": {
+      "refs": [
+        "davies2000"
+      ],
+      "reported": "not stated in abstract",
+      "status": "full text",
+      "note": "no subtype-specific Ki in Guide to Pharmacology or ChEMBL"
+    },
+    "drugs.bretazenil.pd.ki": {
+      "refs": [
+        "huang2000",
+        "zdrazil2024"
+      ],
+      "reported": "α1 0.35, α2 0.64, α3 0.2, α5 0.5, α6 12.7 nM",
+      "status": "consistent",
+      "note": "α4 (30 nM) is an estimate; not reported"
+    },
+    "drugs.flumazenil.pd.ki": {
+      "refs": [
+        "huang2000",
+        "huang1998",
+        "zdrazil2024"
+      ],
+      "reported": "α1 0.8, α2 0.9, α3 1.05, α5 0.6, α6 148 nM",
+      "status": "consistent",
+      "note": "α4 not reported for the human receptor"
+    },
+    "drugs.dmcm.pd.ki": {
+      "refs": [
+        "braestrup1982"
+      ],
+      "reported": "not stated in abstract",
+      "status": "full text",
+      "note": "no subtype-specific Ki in Guide to Pharmacology or ChEMBL"
+    },
+    "drugs.diazepam.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.alprazolam.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.lorazepam.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.clonazepam.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.midazolam.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.oxazepam.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.triazolam.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.zolpidem.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.zopiclone.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.bretazenil.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.flumazenil.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "drugs.dmcm.pd.emax": {
+      "refs": [
+        "rogers1994",
+        "sigel2018"
+      ],
+      "reported": "qualitative (PAM, antagonist, inverse agonist)",
+      "status": "model",
+      "note": "β is a teaching parameter of the allosteric model"
+    },
+    "subunits.a1.gabaEC50": {
+      "refs": [
+        "mortensen2012"
+      ],
+      "reported": "not stated in abstract",
+      "status": "full text"
+    },
+    "subunits.a1.residue": {
+      "refs": [
+        "wieland1992",
+        "benson1998"
+      ],
+      "reported": "His (sensitive) vs Arg (insensitive) at the α1 H101 position",
+      "status": "consistent"
+    },
+    "subunits.a2.gabaEC50": {
+      "refs": [
+        "mortensen2012"
+      ],
+      "reported": "not stated in abstract",
+      "status": "full text"
+    },
+    "subunits.a2.residue": {
+      "refs": [
+        "wieland1992",
+        "benson1998"
+      ],
+      "reported": "His (sensitive) vs Arg (insensitive) at the α1 H101 position",
+      "status": "consistent"
+    },
+    "subunits.a3.gabaEC50": {
+      "refs": [
+        "mortensen2012"
+      ],
+      "reported": "not stated in abstract",
+      "status": "full text"
+    },
+    "subunits.a3.residue": {
+      "refs": [
+        "wieland1992",
+        "benson1998"
+      ],
+      "reported": "His (sensitive) vs Arg (insensitive) at the α1 H101 position",
+      "status": "consistent"
+    },
+    "subunits.a5.gabaEC50": {
+      "refs": [
+        "mortensen2012"
+      ],
+      "reported": "not stated in abstract",
+      "status": "full text"
+    },
+    "subunits.a5.residue": {
+      "refs": [
+        "wieland1992",
+        "benson1998"
+      ],
+      "reported": "His (sensitive) vs Arg (insensitive) at the α1 H101 position",
+      "status": "consistent"
+    },
+    "subunits.a4.gabaEC50": {
+      "refs": [
+        "mortensen2012"
+      ],
+      "reported": "not stated in abstract",
+      "status": "full text"
+    },
+    "subunits.a4.residue": {
+      "refs": [
+        "wieland1992",
+        "benson1998"
+      ],
+      "reported": "His (sensitive) vs Arg (insensitive) at the α1 H101 position",
+      "status": "consistent"
+    },
+    "subunits.a6.gabaEC50": {
+      "refs": [
+        "mortensen2012"
+      ],
+      "reported": "not stated in abstract",
+      "status": "full text"
+    },
+    "subunits.a6.residue": {
+      "refs": [
+        "wieland1992",
+        "benson1998"
+      ],
+      "reported": "His (sensitive) vs Arg (insensitive) at the α1 H101 position",
+      "status": "consistent"
+    },
+    "model.singleChannel.conductance_pS": {
+      "refs": [
+        "rogers1994",
+        "bormann1987"
+      ],
+      "reported": "27 pS main conductance level of GABAA receptor channels (mouse spinal neurones)",
+      "status": "consistent"
+    },
+    "model.singleChannel.clOut_mM": {
+      "refs": [
+        "kaila2014"
+      ],
+      "reported": "mature neurons: low intracellular Cl⁻",
+      "status": "full text"
+    },
+    "model.singleChannel.clIn_mM": {
+      "refs": [
+        "jedlicka2011",
+        "kaila2014"
+      ],
+      "reported": "[Cl⁻]i 8 mM (resting level in the model)",
+      "status": "consistent"
+    },
+    "model.singleChannel.clInImmature_mM": {
+      "refs": [
+        "benari2002",
+        "rivera1999",
+        "kaila2014"
+      ],
+      "reported": "immature neurons: high intracellular Cl⁻ (NKCC1 before KCC2 expression), E_GABA depolarised relative to rest",
+      "status": "full text",
+      "note": "check the reported range (about 20-40 mM)"
+    },
+    "model.singleChannel.vmMin_mV": {
+      "refs": [],
+      "reported": "teaching range around the resting potential",
+      "status": "model"
+    },
+    "model.singleChannel.vmMax_mV": {
+      "refs": [],
+      "reported": "teaching range around the resting potential",
+      "status": "model"
+    },
+    "model.singleChannel.hco3Out_mM": {
+      "refs": [
+        "jedlicka2011",
+        "farrant2007"
+      ],
+      "reported": "[HCO3⁻]o 26 mM",
+      "status": "consistent"
+    },
+    "model.singleChannel.hco3In_mM": {
+      "refs": [
+        "jedlicka2011",
+        "farrant2007"
+      ],
+      "reported": "[HCO3⁻]i 16 mM",
+      "status": "consistent"
+    },
+    "model.singleChannel.pHCO3_pCl": {
+      "refs": [
+        "sallard2021",
+        "jedlicka2011",
+        "bormann1987"
+      ],
+      "reported": "P_HCO3/P_Cl between 0.2 and 0.3 in standard physiological conditions (review); 0.25 used, range 0.18-0.44 (model study)",
+      "status": "consistent"
+    },
+    "model.kinetics.rates": {
+      "refs": [
+        "haas1999",
+        "haas2004erratum"
+      ],
+      "reported": "rate constants of the alpha1beta3gamma2L model (Fig. 7B) as corrected in the erratum; the published simulation gives open time constants 1.87 and 3.62 ms and Po 3.68% at 1 mM GABA (Table 2)",
+      "status": "consistent"
+    },
+    "model.kinetics.temperatureLow_C": {
+      "refs": [
+        "haas1999"
+      ],
+      "reported": "experiments at room temperature (22-23 °C)",
+      "status": "consistent"
+    },
+    "model.kinetics.temperatureHigh_C": {
+      "refs": [
+        "haas1999"
+      ],
+      "reported": "experiments at room temperature (22-23 °C)",
+      "status": "consistent"
+    },
+    "model.ipsc.amplitude_pA": {
+      "refs": [],
+      "reported": "scale of the illustrative trace",
+      "status": "model"
+    },
+    "model.ipsc.peakGaba_uM": {
+      "refs": [],
+      "reported": "effective sub-saturating synaptic GABA, so that the allosteric shift changes the amplitude moderately",
+      "status": "model"
+    },
+    "model.ipsc.tauRise_ms": {
+      "refs": [
+        "jones1995"
+      ],
+      "reported": "IPSCs peak rapidly (0.5-5 ms)",
+      "status": "consistent"
+    },
+    "model.ipsc.tauFast_ms": {
+      "refs": [
+        "jones1995"
+      ],
+      "reported": "IPSC decay: tau fast 50 ± 30 ms (64% of amplitude), cultured hippocampal neurons",
+      "status": "consistent"
+    },
+    "model.ipsc.tauSlow_ms": {
+      "refs": [
+        "jones1995"
+      ],
+      "reported": "IPSC decay: tau slow 171 ± 92 ms",
+      "status": "consistent"
+    },
+    "model.ipsc.fastFraction": {
+      "refs": [
+        "jones1995"
+      ],
+      "reported": "fast component 64% ± 11% of amplitude",
+      "status": "consistent"
+    },
+    "model.ipsc.decayShiftExponent": {
+      "refs": [
+        "mellor1997"
+      ],
+      "reported": "flunitrazepam slowed deactivation of IPSC-like responses by about 50%; exponent set so that a full PAM (beta 3) at full occupancy prolongs decay 1.5-fold (3^0.37)",
+      "status": "calibrated"
+    },
+    "regions.abundance": {
+      "refs": [
+        "pirker2000",
+        "fritschy1995"
+      ],
+      "reported": "immunocytochemistry, adult rat brain",
+      "status": "full text",
+      "note": "levels 0-3 are a simplification"
+    },
+    "drugs.diazepam.pk.rt.nasal.F": {
+      "refs": [
+        "fda_valtoco"
+      ],
+      "reported": "label: 97% (absolute)",
+      "status": "consistent"
+    },
+    "drugs.diazepam.pk.rt.rectal.F": {
+      "refs": [
+        "fda_diazepam_rectal"
+      ],
+      "reported": "label: 90% (absolute)",
+      "status": "consistent"
+    },
+    "drugs.diazepam.pk.metabolites.0.t12": {
+      "refs": [
+        "fda_valium",
+        "fda_diazepam_rectal"
+      ],
+      "reported": "label: up to 100 h; 71 h after rectal gel",
+      "status": "consistent"
+    },
+    "drugs.alprazolam.pk.pathways": {
+      "refs": [
+        "fda_xanax"
+      ],
+      "reported": "label: primarily CYP3A4",
+      "status": "consistent"
+    },
+    "drugs.lorazepam.pk.pathways": {
+      "refs": [
+        "fda_ativan"
+      ],
+      "reported": "label: glucuronidation",
+      "status": "consistent"
+    },
+    "drugs.clonazepam.pk.fu": {
+      "refs": [
+        "fda_klonopin"
+      ],
+      "reported": "label: about 85% bound (fu 0.15)",
+      "status": "consistent"
+    },
+    "drugs.midazolam.pk.im.F": {
+      "refs": [
+        "fda_midazolam_inj"
+      ],
+      "reported": "label: >90% (IM)",
+      "status": "consistent"
+    },
+    "drugs.midazolam.pk.pathways": {
+      "refs": [
+        "fda_midazolam_syrup"
+      ],
+      "reported": "label: CYP3A4 (liver and gut)",
+      "status": "consistent"
+    },
+    "drugs.midazolam.pk.metabolites.0.fm": {
+      "refs": [
+        "fda_midazolam_syrup"
+      ],
+      "reported": "label: 63-80% of a dose recovered as α-hydroxymidazolam glucuronide",
+      "status": "consistent"
+    },
+    "drugs.midazolam.pk.metabolites.0.t12": {
+      "refs": [
+        "fda_nayzilam"
+      ],
+      "reported": "label: 2.7-7.2 h (median range, patients with epilepsy)",
+      "status": "model",
+      "note": "healthy-adult value retained; the label range comes from patients with epilepsy"
+    },
+    "drugs.oxazepam.pk.pathways": {
+      "refs": [
+        "fda_oxazepam"
+      ],
+      "reported": "label: glucuronidation",
+      "status": "consistent"
+    },
+    "drugs.triazolam.pk.pathways": {
+      "refs": [
+        "fda_triazolam"
+      ],
+      "reported": "label: CYP3A",
+      "status": "consistent"
+    },
+    "drugs.zolpidem.pk.pathways": {
+      "refs": [
+        "fda_ambien"
+      ],
+      "reported": "label: mainly CYP3A4; CYP1A2 and CYP2C9 contribute",
+      "status": "consistent",
+      "note": "the 60/40 split is a model assumption"
+    },
+    "drugs.diazepam.pk.ka": {
+      "refs": [
+        "fda_valium"
+      ],
+      "reported": "label: Tmax 1-1.5 h",
+      "status": "calibrated",
+      "note": "ka fitted to the observed Tmax (1.25 h)"
+    },
+    "drugs.diazepam.pk.rt.rectal.ka": {
+      "refs": [
+        "fda_diazepam_rectal"
+      ],
+      "reported": "label: Tmax 1.5 h",
+      "status": "calibrated",
+      "note": "ka fitted to the observed Tmax (1.5 h)"
+    },
+    "drugs.alprazolam.pk.ka": {
+      "refs": [
+        "fda_xanax"
+      ],
+      "reported": "label: Tmax 1-2 h",
+      "status": "calibrated",
+      "note": "ka fitted to the observed Tmax (1.5 h)"
+    },
+    "drugs.lorazepam.pk.ka": {
+      "refs": [
+        "fda_ativan"
+      ],
+      "reported": "label: Tmax about 2 h",
+      "status": "calibrated",
+      "note": "ka fitted to the observed Tmax (2 h)"
+    },
+    "drugs.clonazepam.pk.ka": {
+      "refs": [
+        "crevoisier2003"
+      ],
+      "reported": "Tmax 1.7 h (2 mg)",
+      "status": "calibrated",
+      "note": "ka fitted to the observed Tmax (1.7 h)"
+    },
+    "drugs.midazolam.pk.im.ka": {
+      "refs": [
+        "fda_midazolam_inj"
+      ],
+      "reported": "label: Tmax 0.5 h (7.5 mg)",
+      "status": "calibrated",
+      "note": "ka fitted to the observed Tmax (0.5 h)"
+    },
+    "drugs.midazolam.pk.rt.nasal.ka": {
+      "refs": [
+        "fda_nayzilam"
+      ],
+      "reported": "label: median Tmax 17 min (5 mg)",
+      "status": "calibrated",
+      "note": "ka fitted to the observed Tmax (0.29 h)"
+    },
+    "drugs.oxazepam.pk.ka": {
+      "refs": [
+        "fda_oxazepam"
+      ],
+      "reported": "label: Tmax about 3 h (30 mg)",
+      "status": "calibrated",
+      "note": "ka fitted to the observed Tmax (3 h)"
+    },
+    "drugs.zolpidem.pk.ka": {
+      "refs": [
+        "fda_ambien"
+      ],
+      "reported": "label: Tmax 1.6 h (5 and 10 mg)",
+      "status": "calibrated",
+      "note": "ka fitted to the observed Tmax (1.6 h)"
+    },
+    "drugs.midazolam.pk.ka": {
+      "refs": [
+        "allonen1981"
+      ],
+      "reported": "absorption half-life 0.23 h (ka about 3.0 /h)",
+      "status": "consistent"
+    },
+    "drugs.triazolam.pk.ka": {
+      "refs": [
+        "ochs1987"
+      ],
+      "reported": "Tmax 0.98 h (0.5 mg, 12 healthy men)",
+      "status": "calibrated",
+      "note": "ka fitted to the observed Tmax (0.98 h)"
+    },
+    "drugs.lorazepam.pk.im.ka": {
+      "refs": [
+        "greenblatt1982"
+      ],
+      "reported": "IM absorption half-life 14.2 min (ka about 2.9 /h)",
+      "status": "consistent"
+    },
+    "substances.0.indications": {
+      "refs": [
+        "fda_valium"
+      ],
+      "reported": "label: symptomatic relief of acute agitation, tremor and delirium tremens in acute alcohol withdrawal",
+      "status": "consistent"
+    },
+    "substances.4.indications": {
+      "refs": [
+        "nice_ng10"
+      ],
+      "reported": "NICE NG10 1.4.37: IM lorazepam alone, or IM haloperidol with promethazine, for rapid tranquillisation in adults",
+      "status": "consistent",
+      "note": "off-label in the US"
+    },
+    "substances.8.indications": {
+      "refs": [
+        "nobay2004"
+      ],
+      "reported": "IM midazolam sedated violent, severely agitated patients faster than haloperidol or lorazepam",
+      "status": "consistent",
+      "note": "off-label in the US"
+    },
+    "jurisdictions.eu.data.drugs.diazepam.pk.F": {
+      "refs": [
+        "fass_stesolid_tab"
+      ],
+      "reported": "biotillgänglighet 100%",
+      "status": "consistent"
+    },
+    "jurisdictions.eu.data.drugs.diazepam.pk.vd": {
+      "refs": [
+        "fass_stesolid_tab"
+      ],
+      "reported": "Vd ca 1,2 l/kg (yngre), ca 2 l/kg (äldre)",
+      "status": "consistent"
+    },
+    "jurisdictions.eu.data.drugs.diazepam.pk.ka": {
+      "refs": [
+        "fass_stesolid_tab"
+      ],
+      "reported": "maximal plasmakoncentration inom ½-1 timme",
+      "status": "calibrated",
+      "note": "ka fitted to the Tmax in the SmPC"
+    },
+    "jurisdictions.eu.data.drugs.diazepam.pk.rt.rectal.F": {
+      "refs": [
+        "fass_stesolid_rect"
+      ],
+      "reported": "biotillgänglighet 100% (rektallösning)",
+      "status": "consistent"
+    },
+    "jurisdictions.eu.data.drugs.diazepam.pk.rt.rectal.ka": {
+      "refs": [
+        "fass_stesolid_rect"
+      ],
+      "reported": "maximal plasmakoncentration inom 10-15 minuter",
+      "status": "calibrated",
+      "note": "ka fitted to the Tmax in the SmPC"
+    },
+    "jurisdictions.eu.data.drugs.alprazolam.pk.fu": {
+      "refs": [
+        "fass_xanor"
+      ],
+      "reported": "proteinbindningsgrad cirka 70%",
+      "status": "consistent"
+    },
+    "jurisdictions.eu.data.drugs.alprazolam.pk.vd": {
+      "refs": [
+        "fass_xanor"
+      ],
+      "reported": "distributionsvolym cirka 1 liter/kg",
+      "status": "consistent"
+    },
+    "jurisdictions.eu.data.drugs.lorazepam.pk.fu": {
+      "refs": [
+        "fass_temesta"
+      ],
+      "reported": "plasmaproteinbindningsgrad ca 90%",
+      "status": "consistent"
+    },
+    "jurisdictions.eu.data.drugs.lorazepam.pk.ka": {
+      "refs": [
+        "fass_temesta"
+      ],
+      "reported": "maximal plasmakoncentration 1-2 timmar efter peroral administrering",
+      "status": "calibrated",
+      "note": "ka fitted to the Tmax in the SmPC"
+    },
+    "jurisdictions.eu.data.drugs.oxazepam.pk.t12": {
+      "refs": [
+        "fass_oxascand"
+      ],
+      "reported": "halveringstid cirka 10 timmar",
+      "status": "consistent"
+    },
+    "jurisdictions.eu.data.drugs.oxazepam.pk.fu": {
+      "refs": [
+        "fass_oxascand"
+      ],
+      "reported": "bindning till plasmaprotein 97%",
+      "status": "consistent"
+    },
+    "jurisdictions.eu.data.drugs.oxazepam.pk.ka": {
+      "refs": [
+        "fass_oxascand"
+      ],
+      "reported": "högsta plasmakoncentration efter ca 2 timmar",
+      "status": "calibrated",
+      "note": "ka fitted to the Tmax in the SmPC"
+    },
+    "jurisdictions.eu.data.drugs.zolpidem.pk.vd": {
+      "refs": [
+        "fass_stilnoct"
+      ],
+      "reported": "distributionsvolym 0,5 l/kg",
+      "status": "consistent"
+    },
+    "jurisdictions.eu.data.drugs.zopiclone.pk.vd": {
+      "refs": [
+        "fass_imovane"
+      ],
+      "reported": "distributionsvolym 1,3 l/kg",
+      "status": "consistent"
+    },
+    "drugs.diazepam.pk.metabolites.0.mw": {
+      "refs": [
+        "kim2025"
+      ],
+      "reported": "PubChem CID 2997: 270.71 g/mol",
+      "status": "consistent"
+    },
+    "drugs.diazepam.pk.metabolites.1.mw": {
+      "refs": [
+        "kim2025"
+      ],
+      "reported": "PubChem CID 5391: 300.74 g/mol",
+      "status": "consistent"
+    },
+    "drugs.diazepam.pk.metabolites.2.mw": {
+      "refs": [
+        "kim2025"
+      ],
+      "reported": "PubChem CID 4616: 286.71 g/mol",
+      "status": "consistent"
+    },
+    "drugs.midazolam.pk.metabolites.0.mw": {
+      "refs": [
+        "kim2025"
+      ],
+      "reported": "PubChem CID 107917: 341.8 g/mol",
+      "status": "consistent"
+    },
+    "jurisdictions.se.concentrationUnit": {
+      "refs": [
+        "labmed_skane_clonazepam"
+      ],
+      "reported": "S-Klonazepam: Riktområde 40-120 nmol/L",
+      "status": "consistent",
+      "note": "Swedish laboratories report serum benzodiazepine concentrations in molar units"
+    }
+  },
+  "sourceChecks": {
+    "kiPath": "pd.ki",
+    "foldTolerance": 2,
+    "chemblTargets": {
+      "a1": "CHEMBL2094121",
+      "a2": "CHEMBL2094130",
+      "a3": "CHEMBL2094120",
+      "a5": "CHEMBL2094122",
+      "a6": "CHEMBL2095190"
+    },
+    "gtopdbTargets": {
+      "a1": "GABA<sub>A</sub> receptor &alpha;1 subunit",
+      "a2": "GABA<sub>A</sub> receptor &alpha;2 subunit",
+      "a3": "GABA<sub>A</sub> receptor &alpha;3 subunit",
+      "a4": "GABA<sub>A</sub> receptor &alpha;4 subunit",
+      "a5": "GABA<sub>A</sub> receptor &alpha;5 subunit",
+      "a6": "GABA<sub>A</sub> receptor &alpha;6 subunit"
+    },
+    "species": "Human"
+  },
+  "validation": [
+    {
+      "drug": "diazepam",
+      "route": "oral",
+      "dose": 10,
+      "tmax": [
+        1,
+        1.5
+      ],
+      "refs": [
+        "fda_valium"
+      ],
+      "note": "mean Tmax; range 0.25-2.5 h; Cmax not stated",
+      "set": "calibration"
+    },
+    {
+      "drug": "diazepam",
+      "route": "rectal",
+      "dose": 15,
+      "tmax": 1.5,
+      "refs": [
+        "fda_diazepam_rectal"
+      ],
+      "note": "rectal gel; Cmax not stated",
+      "set": "calibration"
+    },
+    {
+      "drug": "alprazolam",
+      "route": "oral",
+      "dose": 1,
+      "tmax": [
+        1,
+        2
+      ],
+      "refs": [
+        "fda_xanax"
+      ],
+      "note": "label; Cmax not stated",
+      "set": "calibration"
+    },
+    {
+      "drug": "lorazepam",
+      "route": "oral",
+      "dose": 2,
+      "cmax": 20,
+      "tmax": 2,
+      "refs": [
+        "fda_ativan"
+      ],
+      "note": "approximate values",
+      "set": "calibration"
+    },
+    {
+      "drug": "clonazepam",
+      "route": "oral",
+      "dose": 2,
+      "cmax": 14.9,
+      "tmax": 1.7,
+      "refs": [
+        "crevoisier2003"
+      ],
+      "note": "means, 12 healthy volunteers",
+      "set": "calibration"
+    },
+    {
+      "drug": "midazolam",
+      "route": "im",
+      "dose": 7.5,
+      "cmax": 90,
+      "tmax": 0.5,
+      "refs": [
+        "fda_midazolam_inj"
+      ],
+      "note": "means, 17 healthy subjects",
+      "set": "calibration"
+    },
+    {
+      "drug": "midazolam",
+      "route": "nasal",
+      "dose": 5,
+      "cmax": 54.7,
+      "tmax": 0.29,
+      "refs": [
+        "fda_nayzilam"
+      ],
+      "note": "Nayzilam; median Tmax 17 min",
+      "set": "calibration"
+    },
+    {
+      "drug": "oxazepam",
+      "route": "oral",
+      "dose": 30,
+      "cmax": 450,
+      "tmax": 3,
+      "refs": [
+        "fda_oxazepam"
+      ],
+      "note": "label gives 450 \"mg/mL\", evidently ng/mL",
+      "set": "calibration"
+    },
+    {
+      "drug": "zolpidem",
+      "route": "oral",
+      "dose": 5,
+      "cmax": 59,
+      "tmax": 1.6,
+      "refs": [
+        "fda_ambien"
+      ],
+      "note": "means, 45 healthy subjects",
+      "set": "calibration"
+    },
+    {
+      "drug": "zolpidem",
+      "route": "oral",
+      "dose": 10,
+      "cmax": 121,
+      "tmax": 1.6,
+      "refs": [
+        "fda_ambien"
+      ],
+      "note": "means, 45 healthy subjects",
+      "set": "calibration"
+    },
+    {
+      "set": "calibration",
+      "drug": "triazolam",
+      "route": "oral",
+      "dose": 0.5,
+      "cmax": 4.64,
+      "tmax": 0.98,
+      "refs": [
+        "ochs1987"
+      ],
+      "note": "means, 12 healthy non-smoking men"
+    },
+    {
+      "drug": "midazolam",
+      "route": "oral",
+      "dose": 10,
+      "tmax": 0.5,
+      "refs": [
+        "heizmann1983"
+      ],
+      "note": "peak within 30 min (upper bound); Cmax not stated",
+      "set": "validation",
+      "tmaxUpper": true
+    },
+    {
+      "drug": "triazolam",
+      "route": "oral",
+      "dose": 0.25,
+      "cmax": [
+        1,
+        6
+      ],
+      "tmax": 2,
+      "refs": [
+        "fda_triazolam"
+      ],
+      "note": "Cmax range at recommended doses; peak within 2 h (upper bound)",
+      "set": "validation",
+      "tmaxUpper": true
+    },
+    {
+      "drug": "diazepam",
+      "route": "oral",
+      "dose": 10,
+      "cmax": 406,
+      "refs": [
+        "greenblatt1989"
+      ],
+      "note": "mean of 48 healthy men; Tmax not stated",
+      "set": "validation"
+    },
+    {
+      "drug": "alprazolam",
+      "route": "oral",
+      "dose": 1,
+      "cmax": [
+        12,
+        22
+      ],
+      "tmax": [
+        0.7,
+        1.8
+      ],
+      "refs": [
+        "greenblatt1993"
+      ],
+      "note": "typical ranges (review)",
+      "set": "validation"
+    },
+    {
+      "drug": "alprazolam",
+      "route": "oral",
+      "dose": 0.8,
+      "cmax": 11.3,
+      "refs": [
+        "otani1997"
+      ],
+      "note": "mean, 10 healthy men",
+      "set": "validation"
+    },
+    {
+      "drug": "lorazepam",
+      "route": "oral",
+      "dose": 2,
+      "cmax": 16.9,
+      "tmax": 2,
+      "refs": [
+        "greenblatt1976"
+      ],
+      "note": "8 healthy men; pooled 2 h sample",
+      "set": "validation"
+    },
+    {
+      "drug": "lorazepam",
+      "route": "oral",
+      "dose": 2,
+      "tmax": 2.37,
+      "refs": [
+        "greenblatt1982"
+      ],
+      "note": "mean, 10 healthy volunteers",
+      "set": "validation"
+    },
+    {
+      "drug": "lorazepam",
+      "route": "im",
+      "dose": 2,
+      "tmax": 1.15,
+      "refs": [
+        "greenblatt1982"
+      ],
+      "note": "mean, 10 healthy volunteers; source of the IM absorption rate",
+      "set": "calibration"
+    },
+    {
+      "drug": "clonazepam",
+      "route": "oral",
+      "dose": 2,
+      "cmax": 13,
+      "tmax": 3,
+      "refs": [
+        "genisnajera2024"
+      ],
+      "note": "bioequivalence study, approximate means",
+      "set": "validation"
+    },
+    {
+      "drug": "clonazepam",
+      "route": "oral",
+      "dose": 2,
+      "cmax": 16.3,
+      "tmax": 1.63,
+      "refs": [
+        "chauhan2000"
+      ],
+      "note": "means, reference brand comparison",
+      "set": "validation"
+    },
+    {
+      "drug": "midazolam",
+      "route": "im",
+      "dose": 5,
+      "tmax": 0.29,
+      "refs": [
+        "hung1996"
+      ],
+      "note": "mean, 4 healthy men",
+      "set": "validation"
+    },
+    {
+      "drug": "midazolam",
+      "route": "im",
+      "dose": 5,
+      "tmax": 0.5,
+      "refs": [
+        "reichard2010"
+      ],
+      "note": "median over 5-30 mg (autoinjector)",
+      "set": "validation"
+    },
+    {
+      "drug": "midazolam",
+      "route": "nasal",
+      "dose": 5,
+      "cmax": 62.8,
+      "tmax": 0.36,
+      "refs": [
+        "ivaturi2009"
+      ],
+      "note": "parenteral solution given nasally; bioavailability may differ",
+      "set": "validation"
+    },
+    {
+      "drug": "midazolam",
+      "route": "nasal",
+      "dose": 5,
+      "cmax": 71,
+      "tmax": 0.23,
+      "refs": [
+        "knoester2002"
+      ],
+      "note": "concentrated spray (F 0.83); bioavailability differs",
+      "set": "validation"
+    },
+    {
+      "drug": "oxazepam",
+      "route": "oral",
+      "dose": 30,
+      "cmax": 387,
+      "refs": [
+        "vanhecken1985"
+      ],
+      "note": "mean, 6 healthy men; Tmax not stated",
+      "set": "validation"
+    },
+    {
+      "drug": "triazolam",
+      "route": "oral",
+      "dose": 0.25,
+      "cmax": 1.8,
+      "refs": [
+        "backman1999"
+      ],
+      "note": "placebo phase, 9 healthy subjects",
+      "set": "validation"
+    },
+    {
+      "drug": "triazolam",
+      "route": "oral",
+      "dose": 0.25,
+      "cmax": 2.33,
+      "refs": [
+        "barbhaiya1995"
+      ],
+      "note": "triazolam alone, healthy men",
+      "set": "validation"
+    },
+    {
+      "drug": "triazolam",
+      "route": "oral",
+      "dose": 0.5,
+      "cmax": 3.2,
+      "refs": [
+        "otani1997"
+      ],
+      "note": "mean, 10 healthy men",
+      "set": "validation"
+    },
+    {
+      "drug": "zolpidem",
+      "route": "oral",
+      "dose": 10,
+      "tmax": 0.78,
+      "refs": [
+        "dehaas2010"
+      ],
+      "note": "median",
+      "set": "validation"
+    },
+    {
+      "drug": "zolpidem",
+      "route": "oral",
+      "dose": 20,
+      "cmax": [
+        192,
+        324
+      ],
+      "tmax": [
+        0.75,
+        2.6
+      ],
+      "refs": [
+        "salva1995"
+      ],
+      "note": "typical ranges (review)",
+      "set": "validation"
+    },
+    {
+      "set": "validation",
+      "drug": "triazolam",
+      "route": "oral",
+      "dose": 0.25,
+      "cmax": 1.43,
+      "tmax": 2.0,
+      "refs": [
+        "kroboth1987"
+      ],
+      "note": "normal subjects, night-time dosing"
+    },
+    {
+      "set": "validation",
+      "drug": "lorazepam",
+      "route": "im",
+      "dose": 2,
+      "tmax": 3,
+      "refs": [
+        "fda_lorazepam_inj"
+      ],
+      "note": "label: peak within 3 h (upper bound)",
+      "tmaxUpper": true
+    }
+  ],
+  "jurisdictions": {
+    "us": {
+      "label": "US",
+      "concentrationUnit": "ng/mL",
+      "labels": "FDA prescribing information (DailyMed); US brand names",
+      "data": {}
+    },
+    "eu": {
+      "label": "EU",
+      "concentrationUnit": "µg/L",
+      "labels": "EU summaries of product characteristics as published in FASS (Sweden); Swedish product names and availability",
+      "data": {
+        "drugs": {
+          "diazepam": {
+            "brand": "Stesolid",
+            "pk": {
+              "F": 1.0,
+              "vd": 1.2,
+              "ka": 8.3,
+              "rt": {
+                "rectal": {
+                  "F": 1.0,
+                  "ka": 36.8
+                }
+              }
+            }
+          },
+          "alprazolam": {
+            "brand": "Xanor",
+            "pk": {
+              "fu": 0.3,
+              "vd": 1.0
+            }
+          },
+          "lorazepam": {
+            "brand": "Temesta",
+            "pk": {
+              "fu": 0.1,
+              "ka": 2.6
+            }
+          },
+          "clonazepam": {
+            "brand": "Iktorivil"
+          },
+          "midazolam": {
+            "brand": "Midazolam Accord and others; BUCCOLAM (buccal)"
+          },
+          "oxazepam": {
+            "brand": "Oxascand",
+            "pk": {
+              "t12": 10,
+              "fu": 0.03,
+              "ka": 1.7
+            }
+          },
+          "triazolam": {
+            "brand": "not marketed in Sweden"
+          },
+          "zolpidem": {
+            "brand": "Stilnoct",
+            "pk": {
+              "vd": 0.5
+            }
+          },
+          "zopiclone": {
+            "brand": "Imovane",
+            "pk": {
+              "vd": 1.3
+            }
+          },
+          "flumazenil": {
+            "brand": "Flumazenil Fresenius Kabi"
+          }
+        },
+        "drugRoutes": {
+          "diazepam": {
+            "rectal": {
+              "tmax": "10-15 min (rectal solution)"
+            }
+          }
+        },
+        "substances": {
+          "0": {
+            "brand": "Stesolid"
+          },
+          "1": {
+            "brand": "not marketed in Sweden"
+          },
+          "2": {
+            "brand": "Iktorivil"
+          },
+          "3": {
+            "brand": "not marketed in Sweden"
+          },
+          "4": {
+            "brand": "Temesta"
+          },
+          "5": {
+            "brand": "Xanor"
+          },
+          "6": {
+            "brand": "not marketed in Sweden"
+          },
+          "7": {
+            "brand": "Oxascand"
+          },
+          "8": {
+            "brand": "Midazolam Accord and others; BUCCOLAM (buccal)"
+          },
+          "9": {
+            "brand": "not marketed in Sweden"
+          },
+          "11": {
+            "brand": "Stilnoct"
+          },
+          "12": {
+            "brand": "Imovane (zopiclone)"
+          },
+          "13": {
+            "brand": "Flumazenil Fresenius Kabi"
+          }
+        }
+      }
+    },
+    "se": {
+      "label": "SE",
+      "concentrationUnit": "nmol/L",
+      "inherits": "eu",
+      "labels": "EU summaries of product characteristics as published in FASS (Sweden), Swedish product names and availability, with plasma concentrations in nmol/L as reported by Swedish laboratories",
+      "data": {}
+    }
+  }
+}
